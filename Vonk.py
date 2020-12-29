@@ -107,7 +107,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,lambda_Ang,plots):		#Hauptfunkt
 		err[key]=resultR.params[key].stderr
 
 	fc=1/uq(prmR['C0'],pq.dimensionless,err['C0'])
-	k=2*fc*(uq(prmR['C1'],pq.nm**2,err['C1'])**2+uq(prmR['C2'],pq.nm**4,err['C2']))**0.5
+	k=2*fc*(uq(prmR['C1'],pq.angstrom**2,err['C1'])**2+uq(prmR['C2'],pq.angstrom**4,err['C2']))**0.5
 	J=uq(prmT['J'],pq.dimensionless,err['J'])
 
 	return fc,k,J
