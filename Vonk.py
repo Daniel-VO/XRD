@@ -1,5 +1,5 @@
 """
-Created 17. September 2020 by Daniel Van Opdenbosch, Technical University of Munich
+Created 29. December 2020 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -15,7 +15,7 @@ from scipy import integrate
 
 
 def fsquared(atoms,vects):			#Atomare Streufaktoren
-	return numpy.real(numpy.average(numpy.array([i.f(vects) for i in atoms])**2,axis=0))
+	return numpy.real(numpy.average(numpy.array([i.f(2*numpy.pi*vects) for i in atoms])**2,axis=0))
 
 def R(yobs,ycryst,vects):			#Vonk R-Funktion
 	return integrate.cumtrapz(yobs*vects**2,x=vects)/integrate.cumtrapz(ycryst*vects**2,x=vects)
@@ -29,14 +29,14 @@ def Vonkfunc(vects,fc,k):			#Vonk Anpassung an R
 def Vonksecfunc(vects,C0,C1,C2):	#Vonk Anpassung an R mit Polynom zweiten Grades
 	return C0+C1*vects**2+C2*vects**4
 
-def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,lambda_nm,plots):		#Hauptfunktion Vonk.Vonk()
-	vects=2*numpy.sin(numpy.radians(twotheta_deg/2))/lambda_nm
+def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,lambda_Ang,plots):		#Hauptfunktion Vonk.Vonk()
+	vects=2*numpy.sin(numpy.radians(twotheta_deg/2))/lambda_Ang
 	for i,value in enumerate(atoms):
 		if isinstance(value,str):
 			atoms[i]=xu.materials.atom.Atom(value[0]+value[1:].lower(),1)
 
 	#Berechnung der inkohaerenten Streuung J, Korrektur von yobs
-	argsJ=numpy.where(vects[1:]>6)
+	argsJ=numpy.where(vects[1:]>0.6)
 	params=lmfit.Parameters()
 	params.add('J',1,min=0)
 	def VonkTfitfunc(params):
@@ -48,7 +48,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,lambda_nm,plots):		#Hauptfunkti
 	yobs-=prmT['J']/T(atoms,yobs[argsJ],vects[argsJ],prmT['J'])[-1]
 
 	#Berechnung von Rulands R, Anpassung durch Vonks Funktion
-	argsR=numpy.where(vects[1:]>4)
+	argsR=numpy.where((vects[1:]>vects[numpy.where(yobs==max(yobs))][-1])&(yobs[1:]<max(yobs)/3))
 	params=lmfit.Parameters()
 	params.add('C0',1,min=1)
 	params.add('C1',0,min=0)
@@ -86,7 +86,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,lambda_nm,plots):		#Hauptfunkti
 		ax2.set_ylim([0,None])
 		ax2.set_yticks([])
 
-		ax1.set_xlabel(r'$s_p^2/\rm{nm}^{-2}$',fontsize=10)
+		ax1.set_xlabel(r'$s_p^2/\rm{\AA}^{-2}$',fontsize=10)
 		ax1.set_ylabel(r'$R/1$',fontsize=10)
 		ax2.set_ylabel(r'$I/1$',fontsize=10)
 		ax1.tick_params(direction='out')

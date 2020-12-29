@@ -1,5 +1,5 @@
 """
-Created 17. September 2020 by Daniel Van Opdenbosch, Technical University of Munich
+Created 29. December 2020 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -21,7 +21,7 @@ for i in glob.glob('*.str'):
 	print(i)
 	f=open(i).readlines()
 	for linenumber,line in enumerate(f):
-		if 'PARAM=' in line and 'RP=' not in line:
+		if 'PARAM=' in line and 'RP=' not in line and 'amorphous' not in i:
 			for j in line.split(' '):
 				print(j)
 				for k in j.split('=')[2:]:
@@ -176,15 +176,15 @@ for i in glob.glob(filenamepattern+'.lst'):
 			ycryst=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=col)
 			if numpy.median(ycryst)!=0:
 				if switch=='homo':
-					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs,ycryst,twotheta,0.154,True)
+					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs,ycryst,twotheta,1.54,True)
 				elif switch=='hetero':
-					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yam+ycryst,ycryst,twotheta,0.154,True)
+					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yam+ycryst,ycryst,twotheta,1.54,True)
 					print('Warnung: fc ist kristalliner Anteil an homogener Portion.')
 				else:
 					print('Eingabe hetero / homo nicht verstanden, fc wird auf 0 gesetzt.')
-					fc,k,J=uq(0,pq.dimensionless,0),uq(0,unitoflength**2,0),uq(0,pq.dimensionless,0)
+					fc,k,J=uq(0,pq.dimensionless,0),uq(0,pq.angstrom**2,0),uq(0,pq.dimensionless,0)
 			else:
-				fc,k,J=uq(0,pq.dimensionless,0),uq(0,unitoflength**2,0),uq(0,pq.dimensionless,0)
+				fc,k,J=uq(0,pq.dimensionless,0),uq(0,pq.angstrom**2,0),uq(0,pq.dimensionless,0)
 
 			####
 			XrayDensity_collect.append(XrayDensity)
