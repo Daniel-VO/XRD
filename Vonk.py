@@ -1,5 +1,5 @@
 """
-Created 29. December 2020 by Daniel Van Opdenbosch, Technical University of Munich
+Created 11. January 2021 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -35,17 +35,26 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,lambda_Ang,plots):		#Hauptfunkt
 		if isinstance(value,str):
 			atoms[i]=xu.materials.atom.Atom(value[0]+value[1:].lower(),1)
 
+	err={}
+
 	#Berechnung der inkohaerenten Streuung J, Korrektur von yobs
-	argsJ=numpy.where(vects[1:]>0.6)
-	params=lmfit.Parameters()
-	params.add('J',1,min=0)
-	def VonkTfitfunc(params):
-		prmT=params.valuesdict()
-		return T(atoms,yobs[argsJ],vects[argsJ],prmT['J'])-T(atoms,yobs[argsJ],vects[argsJ],prmT['J'])[-1]
-	resultT=lmfit.minimize(VonkTfitfunc,params,method='least_squares')
-	prmT=resultT.params.valuesdict()
-	# ~ resultT.params.pretty_print()
-	yobs-=prmT['J']/T(atoms,yobs[argsJ],vects[argsJ],prmT['J'])[-1]
+	if max(vects)>0.6:
+		argsJ=numpy.where(vects[1:]>0.6)
+		params=lmfit.Parameters()
+		params.add('J',1,min=0)
+		def VonkTfitfunc(params):
+			prmT=params.valuesdict()
+			return T(atoms,yobs[argsJ],vects[argsJ],prmT['J'])-T(atoms,yobs[argsJ],vects[argsJ],prmT['J'])[-1]
+		resultT=lmfit.minimize(VonkTfitfunc,params,method='least_squares')
+		prmT=resultT.params.valuesdict()
+		for key in resultT.params:
+			err[key]=resultT.params[key].stderr
+		# ~ resultT.params.pretty_print()
+		yobs-=prmT['J']/T(atoms,yobs[argsJ],vects[argsJ],prmT['J'])[-1]
+		J=uq(prmT['J'],pq.dimensionless,err['J'])
+	else:
+		print('Warnung: Keine Bestimmung der inkohärenten Streuung - maximaler Streuvektor zu klein.')
+		J=uq(0,pq.dimensionless,0)
 
 	#Berechnung von Rulands R, Anpassung durch Vonks Funktion
 	argsR=numpy.where((vects[1:]>vects[numpy.where(yobs==max(yobs))][-1])&(yobs[1:]<numpy.average(yobs)))
@@ -65,6 +74,8 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,lambda_Ang,plots):		#Hauptfunkt
 			params.add(key,value,min=0)
 	resultR=lmfit.minimize(VonkRfitfunc,params,method='least_squares')
 	prmR=resultR.params.valuesdict()
+	for key in resultR.params:
+		err[key]=resultR.params[key].stderr
 	# ~ resultR.params.pretty_print()
 
 	#Abbildungen
@@ -100,14 +111,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,lambda_Ang,plots):		#Hauptfunkt
 		plt.savefig(filename+'_Vonk.png',dpi=300)
 		plt.close('all')
 
-	err={}
-	for key in resultT.params:
-		err[key]=resultT.params[key].stderr
-	for key in resultR.params:
-		err[key]=resultR.params[key].stderr
-
 	fc=1/uq(prmR['C0'],pq.dimensionless,err['C0'])
 	k=2*fc*(uq(prmR['C1'],pq.angstrom**2,err['C1'])**2+uq(prmR['C2'],pq.angstrom**4,err['C2']))**0.5
-	J=uq(prmT['J'],pq.dimensionless,err['J'])
 
 	return fc,k,J
