@@ -1,5 +1,5 @@
 """
-Created 11. January 2021 by Daniel Van Opdenbosch, Technical University of Munich
+Created 12. April 2021 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -71,6 +71,10 @@ for i in glob.glob(filenamepattern+'.lst'):
 	fig,ax1=plt.subplots(figsize=(7.5/2.54,5.3/2.54))
 
 	twotheta,yobs,yfit,yam=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=(0,1,2,3))
+	dia=open(filename+'.dia').readlines()
+	for d in numpy.arange(int(dia[0].split('[')[-1].split(']')[0])):
+		if 'amorph' in dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n',''):
+			yam+=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
 
 	f=open(i).readlines()
 	for linenumber,line in enumerate(f):
@@ -163,16 +167,13 @@ for i in glob.glob(filenamepattern+'.lst'):
 					break
 			atoms=[]
 			atoms_collect,occups_collect=numpy.array(atoms_collect),numpy.array(occups_collect)
-			for i in numpy.unique(atoms_collect):
-				numbers=int(round(numpy.sum(occups_collect[numpy.where(atoms_collect==i)]),0))
+			for a in numpy.unique(atoms_collect):
+				numbers=int(round(numpy.sum(occups_collect[numpy.where(atoms_collect==a)]),0))
 				for j in numpy.arange(numbers):
-					atoms.append(str(i))
-
-			eff=open(filename+'.dia').readlines()
-			line=eff[0]
-			for i in numpy.arange(int(line.split('[')[-1].split(']')[0])):
-				if line.split('STRUC['+str(i+1)+']=')[1].split(' STRUC[')[0].replace('\n','')==phasename:
-					col=4+i
+					atoms.append(str(a))
+			for d in numpy.arange(int(dia[0].split('[')[-1].split(']')[0])):
+				if dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n','')==phasename:
+					col=4+d
 			ycryst=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=col)
 			if numpy.median(ycryst)!=0:
 				if switch=='homo':
