@@ -64,10 +64,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,lambda_Ang,plots):		#Hauptfunkt
 	params.add('C2',0)
 	def VonkRfitfunc(params):
 		prmR=params.valuesdict()
-		ret=R(yobs,ycryst,vects)[argsR]-Vonksecfunc(vects[argsR],prmR['C0'],prmR['C1'],prmR['C2'])
-		if Vonksecfunc(0,prmR['C0'],prmR['C1'],prmR['C2'])<1:
-			ret*=2-Vonksecfunc(0,prmR['C0'],prmR['C1'],prmR['C2'])
-		return ret
+		return R(yobs,ycryst,vects)[argsR]-Vonksecfunc(vects[argsR],prmR['C0'],prmR['C1'],prmR['C2'])
 	resultR=lmfit.minimize(VonkRfitfunc,params,method='least_squares')
 	prmR=resultR.params.valuesdict()
 	for key in resultR.params:
