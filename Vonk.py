@@ -59,12 +59,15 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,lambda_Ang,plots):		#Hauptfunkt
 	#Berechnung von Rulands R, Anpassung durch Vonks Funktion
 	argsR=numpy.where((vects[1:]>vects[numpy.where(yobs==max(yobs))][-1])&(yobs[1:]<numpy.average(yobs)))
 	params=lmfit.Parameters()
-	params.add('C0',1,min=1)
-	params.add('C1',0,min=0)
-	params.add('C2',0,min=0)
+	params.add('C0',1)
+	params.add('C1',0)
+	params.add('C2',0)
 	def VonkRfitfunc(params):
 		prmR=params.valuesdict()
-		return R(yobs,ycryst,vects)[argsR]-Vonksecfunc(vects[argsR],prmR['C0'],prmR['C1'],prmR['C2'])
+		ret=R(yobs,ycryst,vects)[argsR]-Vonksecfunc(vects[argsR],prmR['C0'],prmR['C1'],prmR['C2'])
+		if Vonksecfunc(0,prmR['C0'],prmR['C1'],prmR['C2'])<1:
+			ret*=2-Vonksecfunc(0,prmR['C0'],prmR['C1'],prmR['C2'])
+		return ret
 	resultR=lmfit.minimize(VonkRfitfunc,params,method='least_squares')
 	prmR=resultR.params.valuesdict()
 	for key in resultR.params:
