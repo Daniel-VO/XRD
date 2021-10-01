@@ -1,5 +1,5 @@
 """
-Created 14. September 2021 by Daniel Van Opdenbosch, Technical University of Munich
+Created 01. October 2021 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -60,8 +60,8 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,lambda_Ang,plots):		#Hauptfunkt
 	argsR=numpy.where((vects[1:]>vects[numpy.where(yobs==max(yobs))][-1])&(yobs[1:]<numpy.median(yobs)))
 	params=lmfit.Parameters()
 	params.add('C0',1,min=1)
-	params.add('C1',0,min=0)
-	params.add('C2',0,min=0)
+	params.add('C1',0)
+	params.add('C2',0)
 	def VonkRfitfunc(params):
 		prmR=params.valuesdict()
 		return R(yobs,ycryst,vects)[argsR]-Vonksecfunc(vects[argsR],prmR['C0'],prmR['C1'],prmR['C2'])
