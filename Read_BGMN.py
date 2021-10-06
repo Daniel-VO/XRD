@@ -1,5 +1,5 @@
 """
-Created 12. April 2021 by Daniel Van Opdenbosch, Technical University of Munich
+Created 06. October 2021 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -69,6 +69,13 @@ for i in glob.glob(filenamepattern+'.lst'):
 	mpl.rc('text',usetex=True)
 	mpl.rc('text.latex',preamble=r'\usepackage[helvet]{sfmath}')
 	fig,ax1=plt.subplots(figsize=(7.5/2.54,5.3/2.54))
+
+	emission='CuKa1'
+	if ('LAMBDA=cu' or 'LAMBDA=CU') in open(filename+'.sav').read():
+		emission='CuKa1'
+		print('Emission erkannt: '+emission)
+	else:
+		print('Emission nicht erkannt, falle zurück auf: '+emission)
 
 	twotheta,yobs,yfit,yam=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=(0,1,2,3))
 	dia=open(filename+'.dia').readlines()
@@ -177,9 +184,9 @@ for i in glob.glob(filenamepattern+'.lst'):
 			ycryst=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=col)
 			if numpy.median(ycryst)!=0:
 				if switch=='homo':
-					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs,ycryst,twotheta,1.54,True)
+					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs,ycryst,twotheta,emission,True)
 				elif switch=='hetero':
-					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yam+ycryst,ycryst,twotheta,1.54,True)
+					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yam+ycryst,ycryst,twotheta,emission,True)
 					print('Warnung: fc ist kristalliner Anteil an homogener Portion.')
 				else:
 					print('Eingabe hetero / homo nicht verstanden, fc wird auf 0 gesetzt.')

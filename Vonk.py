@@ -1,5 +1,5 @@
 """
-Created 01. October 2021 by Daniel Van Opdenbosch, Technical University of Munich
+Created 06. October 2021 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -12,16 +12,16 @@ import xrayutilities as xu
 import quantities as pq
 from quantities import UncertainQuantity as uq
 from scipy import integrate
+from scipy import constants
 
-
-def fsquared(atoms,vects):			#Atomare Streufaktoren
-	return numpy.real(numpy.average(numpy.array([i.f(2*numpy.pi*vects) for i in atoms])**2,axis=0))
+def fsquared(atoms,vects,energy):			#Atomare Streufaktoren
+	return numpy.real(numpy.average(numpy.array([i.f(2*numpy.pi*vects,en=energy) for i in atoms])**2,axis=0))
 
 def R(yobs,ycryst,vects):			#Vonk R-Funktion
 	return integrate.cumtrapz(yobs*vects**2,x=vects)/integrate.cumtrapz(ycryst*vects**2,x=vects)
 
-def T(atoms,yobs,vects,J):			#Vonk T-Funktion
-	return integrate.cumtrapz((fsquared(atoms,vects)+J)*vects**2,x=vects)/integrate.cumtrapz(yobs*vects**2,x=vects)
+def T(atoms,yobs,vects,energy,J):			#Vonk T-Funktion
+	return integrate.cumtrapz((fsquared(atoms,vects,energy)+J)*vects**2,x=vects)/integrate.cumtrapz(yobs*vects**2,x=vects)
 
 def Vonkfunc(vects,fc,k):			#Vonk Anpassung an R
 	return 1/fc+(k/(2*fc))*vects**2
@@ -29,8 +29,9 @@ def Vonkfunc(vects,fc,k):			#Vonk Anpassung an R
 def Vonksecfunc(vects,C0,C1,C2):	#Vonk Anpassung an R mit Polynom zweiten Grades
 	return C0+C1*vects**2+C2*vects**4
 
-def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,lambda_Ang,plots):		#Hauptfunktion Vonk.Vonk()
-	vects=2*numpy.sin(numpy.radians(twotheta_deg/2))/lambda_Ang
+def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):		#Hauptfunktion Vonk.Vonk()
+	vects=2*numpy.sin(numpy.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
+	energy=xu.utilities_noconf.energy(emission)
 	for i,value in enumerate(atoms):
 		if isinstance(value,str):
 			atoms[i]=xu.materials.atom.Atom(value[0]+value[1:].lower(),1)
@@ -44,13 +45,13 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,lambda_Ang,plots):		#Hauptfunkt
 		params.add('J',1,min=0)
 		def VonkTfitfunc(params):
 			prmT=params.valuesdict()
-			return T(atoms,yobs[argsJ],vects[argsJ],prmT['J'])-T(atoms,yobs[argsJ],vects[argsJ],prmT['J'])[-1]
+			return T(atoms,yobs[argsJ],vects[argsJ],energy,prmT['J'])-T(atoms,yobs[argsJ],vects[argsJ],energy,prmT['J'])[-1]
 		resultT=lmfit.minimize(VonkTfitfunc,params,method='least_squares')
 		prmT=resultT.params.valuesdict()
 		for key in resultT.params:
 			err[key]=resultT.params[key].stderr
 		# ~ resultT.params.pretty_print()
-		yobs-=prmT['J']/T(atoms,yobs[argsJ],vects[argsJ],prmT['J'])[-1]
+		yobs-=prmT['J']/T(atoms,yobs[argsJ],vects[argsJ],energy,prmT['J'])[-1]
 		J=uq(prmT['J'],pq.dimensionless,err['J'])
 	else:
 		print('Warnung: Keine Bestimmung der inkohärenten Streuung - maximaler Streuvektor zu klein.')
