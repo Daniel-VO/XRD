@@ -13,8 +13,6 @@ Textur100_collect/=Textsum
 Textur010_collect/=Textsum
 Textur001_collect/=Textsum
 
-argsort=numpy.argsort(filenamelist)
-
 names=['XrayDensity_collect','lata_collect','latb_collect','latc_collect','GrainSize100_collect','GrainSize010_collect','GrainSize001_collect','MicroStrain100_collect','MicroStrain010_collect','MicroStrain001_collect','Textur100_collect','Textur010_collect','Textur001_collect','TDS100_collect','TDS010_collect','TDS001_collect','Gewicht_collect','fc_collect','k_collect','J_collect']
 
 data=[XrayDensity_collect,lata_collect,latb_collect,latc_collect,GrainSize100_collect,GrainSize010_collect,GrainSize001_collect,MicroStrain100_collect,MicroStrain010_collect,MicroStrain001_collect,Textur100_collect,Textur010_collect,Textur001_collect,TDS100_collect,TDS010_collect,TDS001_collect,Gewicht_collect,fc_collect,k_collect,J_collect]
@@ -35,6 +33,12 @@ ax1.set_ylim([len(dataframe.columns)-0.5,-0.5])
 plt.tight_layout(pad=0.1)
 plt.savefig('corr.png')
 
+phases=[]
+for p,valuep in enumerate(phaselist):
+	phases.append(filenamelist[p]+':'+valuep)
+
+argsort=numpy.argsort(filenamelist)
+
 for i,valuei in enumerate(data):
 	plt.clf()
 	yerr=numpy.array([])
@@ -43,7 +47,7 @@ for i,valuei in enumerate(data):
 			yerr=numpy.append(yerr,j.uncertainty)
 		else:
 			yerr=numpy.append(yerr,0)
-	plt.errorbar(numpy.array(filenamelist)[argsort],numpy.array(valuei)[argsort],yerr=yerr[argsort])
+	plt.errorbar(numpy.array(phases)[argsort],numpy.array(valuei)[argsort],yerr=yerr[argsort])
 	plt.xticks(rotation=90)
 	plt.tight_layout(pad=0.1)
 	plt.savefig(names[i]+'.png')
