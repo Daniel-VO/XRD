@@ -6,17 +6,18 @@ import pickle
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-filenamelist,phaselist,XrayDensity_collect,lata_collect,latb_collect,latc_collect,GrainSize100_collect,GrainSize010_collect,GrainSize001_collect,MicroStrain100_collect,MicroStrain010_collect,MicroStrain001_collect,Textur100_collect,Textur010_collect,Textur001_collect,TDS100_collect,TDS010_collect,TDS001_collect,Gewicht_collect,fc_collect,k_collect,J_collect,OCC_collect=pickle.load(open('alle.pic','rb'))
+filenamelist,phaselist,XrayDensity_collect,lata_collect,latb_collect,latc_collect,GrainSize100_collect,GrainSize010_collect,GrainSize001_collect,MicroStrain100_collect,MicroStrain010_collect,MicroStrain001_collect,Textur100_collect,Textur010_collect,Textur001_collect,TDS100_collect,TDS010_collect,TDS001_collect,Gewicht_collect,fc_collect,k_collect,J_collect=pickle.load(open('alle.pic','rb'))
 
-Textur100_collect/=numpy.array(Textur100_collect)+numpy.array(Textur010_collect)+numpy.array(Textur001_collect)
-Textur010_collect/=numpy.array(Textur100_collect)+numpy.array(Textur010_collect)+numpy.array(Textur001_collect)
-Textur001_collect/=numpy.array(Textur100_collect)+numpy.array(Textur010_collect)+numpy.array(Textur001_collect)
+Textsum=numpy.array(Textur100_collect)+numpy.array(Textur010_collect)+numpy.array(Textur001_collect)
+Textur100_collect/=Textsum
+Textur010_collect/=Textsum
+Textur001_collect/=Textsum
 
 argsort=numpy.argsort(filenamelist)
 
-names=['XrayDensity_collect','lata_collect','latb_collect','latc_collect','GrainSize100_collect','GrainSize010_collect','GrainSize001_collect','MicroStrain100_collect','MicroStrain010_collect','MicroStrain001_collect','Textur100_collect','Textur010_collect','Textur001_collect','TDS100_collect','TDS010_collect','TDS001_collect','Gewicht_collect','fc_collect','k_collect','J_collect','OCC_collect']
+names=['XrayDensity_collect','lata_collect','latb_collect','latc_collect','GrainSize100_collect','GrainSize010_collect','GrainSize001_collect','MicroStrain100_collect','MicroStrain010_collect','MicroStrain001_collect','Textur100_collect','Textur010_collect','Textur001_collect','TDS100_collect','TDS010_collect','TDS001_collect','Gewicht_collect','fc_collect','k_collect','J_collect']
 
-data=[XrayDensity_collect,lata_collect,latb_collect,latc_collect,GrainSize100_collect,GrainSize010_collect,GrainSize001_collect,MicroStrain100_collect,MicroStrain010_collect,MicroStrain001_collect,Textur100_collect,Textur010_collect,Textur001_collect,TDS100_collect,TDS010_collect,TDS001_collect,Gewicht_collect,fc_collect,k_collect,J_collect,OCC_collect]
+data=[XrayDensity_collect,lata_collect,latb_collect,latc_collect,GrainSize100_collect,GrainSize010_collect,GrainSize001_collect,MicroStrain100_collect,MicroStrain010_collect,MicroStrain001_collect,Textur100_collect,Textur010_collect,Textur001_collect,TDS100_collect,TDS010_collect,TDS001_collect,Gewicht_collect,fc_collect,k_collect,J_collect]
 
 plt.clf()
 fig,ax1=plt.subplots()
