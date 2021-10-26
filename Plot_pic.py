@@ -19,7 +19,7 @@ data=[XrayDensity_collect,lata_collect,latb_collect,latc_collect,GrainSize100_co
 
 plt.clf()
 fig,ax1=plt.subplots()
-dataframe=pandas.DataFrame(numpy.array(data).transpose(),columns=names)
+dataframe=pandas.DataFrame(numpy.transpose(data),columns=names)
 corr=dataframe.corr()
 cax=ax1.matshow(corr,cmap='coolwarm',vmin=-1,vmax=1,interpolation='none')
 cbar=fig.colorbar(cax)
@@ -43,12 +43,14 @@ for i,valuei in enumerate(data):
 	plt.clf()
 	yerr=numpy.array([])
 	for j in valuei:
-		if '+/-' in str(j):
+		if '+/-' in str(j) and j.uncertainty<j.magnitude:
 			yerr=numpy.append(yerr,j.uncertainty)
 		else:
 			yerr=numpy.append(yerr,0)
 	plt.errorbar(numpy.array(phases)[argsort],numpy.array(valuei)[argsort],yerr=yerr[argsort])
 	plt.xticks(rotation=90)
-	plt.tight_layout(pad=0.1)
+	if max(numpy.array(valuei))/min(numpy.array(valuei)+1)>1e3:
+		plt.yscale('log')
+	plt.tight_layout(pad=0.3)
 	plt.savefig(names[i]+'.png')
 
