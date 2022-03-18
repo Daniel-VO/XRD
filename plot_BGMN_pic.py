@@ -19,11 +19,6 @@ Textur100_collect/=Textsum
 Textur010_collect/=Textsum
 Textur001_collect/=Textsum
 
-BnmtokAA=numpy.array([100/4])
-TDS100_collect*=BnmtokAA
-TDS010_collect*=BnmtokAA
-TDS001_collect*=BnmtokAA
-
 names=['XrayDensity_collect','lata_collect','latb_collect','latc_collect','GrainSize100_collect','GrainSize010_collect','GrainSize001_collect','MicroStrain100_collect','MicroStrain010_collect','MicroStrain001_collect','Textur100_collect','Textur010_collect','Textur001_collect','TDS100_collect','TDS010_collect','TDS001_collect','Gewicht_collect','fc_collect','k_collect','J_collect']
 
 data=[XrayDensity_collect,lata_collect,latb_collect,latc_collect,GrainSize100_collect,GrainSize010_collect,GrainSize001_collect,MicroStrain100_collect,MicroStrain010_collect,MicroStrain001_collect,Textur100_collect,Textur010_collect,Textur001_collect,TDS100_collect,TDS010_collect,TDS001_collect,Gewicht_collect,fc_collect,k_collect,J_collect]
