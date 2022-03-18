@@ -1,5 +1,5 @@
 """
-Created 06. October 2021 by Daniel Van Opdenbosch, Technical University of Munich
+Created 16. March 2022 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -104,61 +104,85 @@ for i in glob.glob(filenamepattern+'.lst'):
 		if split0[0]=='A':
 			if '+-' in split0[1]:
 				lata=uq(float(split0[1].split('+-')[0]),unitoflength,float(split0[1].split('+-')[1]))
-			elif 'UNDEF' not in split0[1]:
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
 				lata=uq(float(split0[1]),unitoflength,0)
 			latb=latc=lata
 		if split0[0]=='B':
 			if '+-' in split0[1]:
 				latb=uq(float(split0[1].split('+-')[0]),unitoflength,float(split0[1].split('+-')[1]))
-			elif 'UNDEF' not in split0[1]:
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
 				latb=uq(float(split0[1]),unitoflength,0)
 		if split0[0]=='C':
 			if '+-' in split0[1]:
 				latc=uq(float(split0[1].split('+-')[0]),unitoflength,float(split0[1].split('+-')[1]))
-			elif 'UNDEF' not in split0[1]:
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
 				latc=uq(float(split0[1]),unitoflength,0)
 		if split0[0]=='GrainSize(1,0,0)':
 			if '+-' in split0[1]:
 				GrainSize100=uq(float(split0[1].split('+-')[0]),unitoflength,float(split0[1].split('+-')[1]))
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
+				GrainSize100=uq(float(split0[1]),unitoflength,-1)
 		if split0[0]=='GrainSize(0,1,0)':
 			if '+-' in split0[1]:
 				GrainSize010=uq(float(split0[1].split('+-')[0]),unitoflength,float(split0[1].split('+-')[1]))
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
+				GrainSize010=uq(float(split0[1]),unitoflength,-1)
 		if split0[0]=='GrainSize(0,0,1)':
 			if '+-' in split0[1]:
 				GrainSize001=uq(float(split0[1].split('+-')[0]),unitoflength,float(split0[1].split('+-')[1]))
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
+				GrainSize001=uq(float(split0[1]),unitoflength,-1)
 		if split0[0]=='sqrt(k2(1,0,0))':
 			if '+-' in split0[1]:
 				MicroStrain100=uq(float(split0[1].split('+-')[0]),pq.CompoundUnit('m/m'),float(split0[1].split('+-')[1]))
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
+				MicroStrain100=uq(float(split0[1]),pq.CompoundUnit('m/m'),-1)
 		if split0[0]=='sqrt(k2(0,1,0))':
 			if '+-' in split0[1]:
 				MicroStrain010=uq(float(split0[1].split('+-')[0]),pq.CompoundUnit('m/m'),float(split0[1].split('+-')[1]))
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
+				MicroStrain010=uq(float(split0[1]),pq.CompoundUnit('m/m'),-1)
 		if split0[0]=='sqrt(k2(0,0,1))':
 			if '+-' in split0[1]:
 				MicroStrain001=uq(float(split0[1].split('+-')[0]),pq.CompoundUnit('m/m'),float(split0[1].split('+-')[1]))
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
+				MicroStrain001=uq(float(split0[1]),pq.CompoundUnit('m/m'),-1)
 		if split0[0]=='GEWICHT(1,0,0)/GEWICHT':
 			if '+-' in split0[1]:
 				Textur100=uq(float(split0[1].split('+-')[0]),pq.dimensionless,float(split0[1].split('+-')[1]))
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
+				Textur100=uq(float(split0[1]),pq.dimensionless,-1)
 		if split0[0]=='GEWICHT(0,1,0)/GEWICHT':
 			if '+-' in split0[1]:
 				Textur010=uq(float(split0[1].split('+-')[0]),pq.dimensionless,float(split0[1].split('+-')[1]))
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
+				Textur010=uq(float(split0[1]),pq.dimensionless,-1)
 		if split0[0]=='GEWICHT(0,0,1)/GEWICHT':
 			if '+-' in split0[1]:
 				Textur001=uq(float(split0[1].split('+-')[0]),pq.dimensionless,float(split0[1].split('+-')[1]))
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
+				Textur001=uq(float(split0[1]),pq.dimensionless,-1)
 		if split0[0]=='TDS(1,0,0)':
 			if '+-' in split0[1]:
 				TDS100=uq(float(split0[1].split('+-')[0]),unitoflength**2,float(split0[1].split('+-')[1]))
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
+				TDS100=uq(float(split0[1]),unitoflength**2,-1)
 		if split0[0]=='TDS(0,1,0)':
 			if '+-' in split0[1]:
 				TDS010=uq(float(split0[1].split('+-')[0]),unitoflength**2,float(split0[1].split('+-')[1]))
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
+				TDS010=uq(float(split0[1]),unitoflength**2,-1)
 		if split0[0]=='TDS(0,0,1)':
 			if '+-' in split0[1]:
 				TDS001=uq(float(split0[1].split('+-')[0]),unitoflength**2,float(split0[1].split('+-')[1]))
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
+				TDS001=uq(float(split0[1]),unitoflength**2,-1)
 		if split0[0]=='GEWICHT':
 			if '+-' in split0[1]:
 				Gewicht=uq(float(split0[1].split('+-')[0]),pq.dimensionless,float(split0[1].split('+-')[1]))
 			elif 'MeanValue(GEWICHT)' in split0[1]:
 				Gewicht=uq(float(split0[2]),pq.dimensionless,0)
-			elif 'UNDEF' not in split0[1]:
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
 				Gewicht=uq(float(split0[1]),pq.dimensionless,0)
 
 		if 'Atomic positions for phase' in line and 'amorphous' not in line:
@@ -227,6 +251,9 @@ for j,value in enumerate(export):
 	if j!=0:
 		exportstring+=','
 	exportstring+=namestr(export[j],locals())
+
+os.system('mv '+filenamepattern.replace('*','alle')+'.pic '+filenamepattern.replace('*','alle')+'_alt.pic')
+os.system('mv '+filenamepattern.replace('*','alle')+'.txt '+filenamepattern.replace('*','alle')+'_alt.txt')
 
 pickle.dump(export,open(filenamepattern.replace('*','alle')+'.pic','wb'))
 
