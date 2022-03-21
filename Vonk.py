@@ -62,7 +62,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion
 		J=uq(0,pq.dimensionless,0)
 
 	#Berechnung von Rulands R, Anpassung durch Vonks Funktion
-	argsR=numpy.where((vects[1:]>vects[numpy.where(yobs==max(yobs))][-1])&(yobs[1:]<2*numpy.median(yobs)))
+	argsR=numpy.where(vects[1:]>0.6)
 	params=lmfit.Parameters()
 	params.add('C0',1,min=1)
 	params.add('C1',0)
