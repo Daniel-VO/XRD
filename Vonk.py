@@ -17,11 +17,11 @@ from scipy import constants
 def fsquared(vects,atoms,energy):	#Atomare Streufaktoren
 	return numpy.real(numpy.average(numpy.array([i.f(2*numpy.pi*vects,en=energy) for i in atoms])**2,axis=0))
 
-def R(vects,yobs,ycryst,L):		#Vonk R-Funktion
-	return integrate.cumtrapz(yobs/L,x=vects)/integrate.cumtrapz(ycryst/L,x=vects)
+def R(vects,yobs,ycryst):		#Vonk R-Funktion
+	return integrate.cumtrapz(yobs,x=vects)/integrate.cumtrapz(ycryst,x=vects)
 
-def T(vects,atoms,energy,yobs,L,J):			#Vonk T-Funktion
-	return integrate.cumtrapz((fsquared(vects,atoms,energy)+J)/L,x=vects)/integrate.cumtrapz(yobs/L,x=vects)
+def T(vects,atoms,energy,yobs,J):			#Vonk T-Funktion
+	return integrate.cumtrapz(fsquared(vects,atoms,energy),x=vects)/integrate.cumtrapz(yobs-J,x=vects)
 
 def Vonkfunc(vects,fc,k):	#Vonk Anpassung an R
 	return 1/fc+(k/(2*fc))/vects**2
@@ -31,6 +31,8 @@ def Vonksecfunc(vects,C0,C1,C2):	#Vonk Anpassung an R mit Polynom zweiten Grades
 
 def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion Vonk.Vonk()
 	L=numpy.cos(numpy.radians(twotheta_deg/2))/numpy.sin(numpy.radians(twotheta_deg))**2
+	yobs/=L
+	ycryst/=L
 	vects=2*numpy.sin(numpy.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
 	energy=xu.utilities_noconf.energy(emission)
 
@@ -47,13 +49,13 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion
 		params.add('J',1,min=0)
 		def VonkTfitfunc(params):
 			prmT=params.valuesdict()
-			return T(vects,atoms,energy,yobs,L,prmT['J'])[argsJ]-T(vects,atoms,energy,yobs,L,prmT['J'])[argsJ][-1]
+			return T(vects,atoms,energy,yobs,prmT['J'])[argsJ]-T(vects,atoms,energy,yobs,prmT['J'])[argsJ][-1]
 		resultT=lmfit.minimize(VonkTfitfunc,params,method='least_squares')
 		prmT=resultT.params.valuesdict()
 		for key in resultT.params:
 			err[key]=resultT.params[key].stderr
 		# ~ resultT.params.pretty_print()
-		yobs-=prmT['J']/T(vects,atoms,energy,yobs,L,prmT['J'])[argsJ][-1]
+		yobs-=prmT['J']
 		J=uq(prmT['J'],pq.dimensionless,err['J'])
 	else:
 		print('Warnung: Keine Bestimmung der inkohärenten Streuung - maximaler Streuvektor zu klein.')
@@ -67,7 +69,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion
 	params.add('C2',0)
 	def VonkRfitfunc(params):
 		prmR=params.valuesdict()
-		return R(vects,yobs,ycryst,L)[argsR]-Vonksecfunc(vects,prmR['C0'],prmR['C1'],prmR['C2'])[argsR]
+		return R(vects,yobs,ycryst)[argsR]-Vonksecfunc(vects,prmR['C0'],prmR['C1'],prmR['C2'])[argsR]
 	resultR=lmfit.minimize(VonkRfitfunc,params,method='least_squares')
 	prmR=resultR.params.valuesdict()
 	for key in resultR.params:
@@ -82,7 +84,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion
 		fig,ax1=plt.subplots(figsize=(7.5/2.54,5.3/2.54))
 		ax2=ax1.twinx()
 
-		ax1.plot(vects[argsR]**2,R(vects,yobs,ycryst,L)[argsR],'k',linewidth=0.5)
+		ax1.plot(vects[argsR]**2,R(vects,yobs,ycryst)[argsR],'k',linewidth=0.5)
 		ax1.plot(numpy.linspace(0,max(vects))**2,Vonksecfunc(numpy.linspace(0,max(vects)),prmR['C0'],prmR['C1'],prmR['C2']),'k--',linewidth=0.5)
 
 		ax2.plot(vects**2,yobs,'k',linewidth=0.5)
