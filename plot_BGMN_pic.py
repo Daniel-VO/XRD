@@ -1,5 +1,5 @@
 """
-Created 18. March 2022 by Daniel Van Opdenbosch, Technical University of Munich
+Created 21. March 2022 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -18,6 +18,11 @@ Textsum=numpy.array(Textur100_collect)+numpy.array(Textur010_collect)+numpy.arra
 Textur100_collect/=Textsum
 Textur010_collect/=Textsum
 Textur001_collect/=Textsum
+
+BnmtokAA=numpy.array([100/4])
+TDS100_collect*=BnmtokAA
+TDS010_collect*=BnmtokAA
+TDS001_collect*=BnmtokAA
 
 names=['XrayDensity_collect','lata_collect','latb_collect','latc_collect','GrainSize100_collect','GrainSize010_collect','GrainSize001_collect','MicroStrain100_collect','MicroStrain010_collect','MicroStrain001_collect','Textur100_collect','Textur010_collect','Textur001_collect','TDS100_collect','TDS010_collect','TDS001_collect','Gewicht_collect','fc_collect','k_collect','J_collect']
 
