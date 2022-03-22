@@ -1,5 +1,5 @@
 """
-Created 21. March 2022 by Daniel Van Opdenbosch, Technical University of Munich
+Created 22. March 2022 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -21,7 +21,7 @@ def R(vects,yobs,ycryst):		#Vonk R-Funktion
 	return integrate.cumtrapz(yobs,x=vects)/integrate.cumtrapz(ycryst,x=vects)
 
 def T(vects,atoms,energy,yobs,J):			#Vonk T-Funktion
-	return integrate.cumtrapz(fsquared(vects,atoms,energy),x=vects)/integrate.cumtrapz(yobs-J,x=vects)
+	return integrate.cumtrapz((fsquared(vects,atoms,energy)+J)*vects**2,x=vects)/integrate.cumtrapz(yobs,x=vects)
 
 def Vonkfunc(vects,fc,k):	#Vonk Anpassung an R
 	return 1/fc+(k/(2*fc))/vects**2
