@@ -42,7 +42,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion
 
 	fs=fsquared(vects,atoms,energy)*vects**2/(fsquared(vects,atoms,energy)*vects**2)[-1]
 	yo=yobs/yobs[-1]
-	bound=vects[numpy.where((vects>bound)&(fs>yo))][0]
+	bound=vects[numpy.where((vects>0.6)&(fs>yo))][0]
 	print('Grenze: '+str(bound)+' A^-1')
 
 	# ~ plt.plot(vects,fs)
