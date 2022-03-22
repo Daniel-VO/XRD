@@ -41,7 +41,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion
 			atoms[i]=xu.materials.atom.Atom(value[0]+value[1:].lower(),1)
 
 	fs=fsquared(vects,atoms,energy)*vects**2/(fsquared(vects,atoms,energy)*vects**2)[-1]
-	yo=yobs/yobs[-1]
+	yo=yobs/numpy.median(yobs[numpy.where(twotheta_deg>max(twotheta_deg)-1)])
 	bound=vects[numpy.where((vects>0.6)&(fs>yo))][0]
 	print('Grenze: '+str(bound)+' A^-1')
 
