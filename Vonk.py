@@ -58,13 +58,14 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion
 	J=uq(prmT['J'],pq.dimensionless,err['J'])
 
 	#Berechnung von Rulands R, Anpassung durch Vonks Funktion
+	RulandR=R(vects,yobs,ycryst)
 	params=lmfit.Parameters()
 	params.add('C0',1,min=1)
 	params.add('C1',0)
 	params.add('C2',0)
 	def VonkRfitfunc(params):
 		prmR=params.valuesdict()
-		return R(vects,yobs,ycryst)[args]-Vonksecfunc(vects,prmR['C0'],prmR['C1'],prmR['C2'])[args]
+		return RulandR[args]-Vonksecfunc(vects,prmR['C0'],prmR['C1'],prmR['C2'])[args]
 	resultR=lmfit.minimize(VonkRfitfunc,params,method='least_squares')
 	prmR=resultR.params.valuesdict()
 	for key in resultR.params:
@@ -79,7 +80,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion
 		fig,ax1=plt.subplots(figsize=(7.5/2.54,5.3/2.54))
 		ax2=ax1.twinx()
 
-		ax1.plot(vects[args]**2,R(vects,yobs,ycryst)[args],'k',linewidth=0.5)
+		ax1.plot(vects[args]**2,RulandR[args],'k',linewidth=0.5)
 		ax1.plot(numpy.linspace(0,max(vects))**2,Vonksecfunc(numpy.linspace(0,max(vects)),prmR['C0'],prmR['C1'],prmR['C2']),'k--',linewidth=0.5)
 
 		ax2.plot(vects**2,yobs,'k',linewidth=0.5)
