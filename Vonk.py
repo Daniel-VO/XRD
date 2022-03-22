@@ -40,6 +40,10 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion
 		if isinstance(value,str):
 			atoms[i]=xu.materials.atom.Atom(value[0]+value[1:].lower(),1)
 
+	# ~ plt.plot(twotheta_deg,fsquared(vects,atoms,energy)*vects**2/(fsquared(vects,atoms,energy)*vects**2)[-1])
+	# ~ plt.plot(twotheta_deg,yobs/yobs[-1])
+	# ~ plt.show()
+
 	err={}
 
 	#Berechnung der inkohaerenten Streuung J, Korrektur von yobs

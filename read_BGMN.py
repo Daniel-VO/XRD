@@ -1,5 +1,5 @@
 """
-Created 16. March 2022 by Daniel Van Opdenbosch, Technical University of Munich
+Created 22. March 2022 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -208,7 +208,7 @@ for i in glob.glob(filenamepattern+'.lst'):
 			ycryst=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=col)
 			if numpy.median(ycryst)!=0:
 				if switch=='homo':
-					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs,ycryst,twotheta,emission,True)
+					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycryst,twotheta,emission,True)
 				elif switch=='hetero':
 					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yam+ycryst,ycryst,twotheta,emission,True)
 					print('Warnung: fc ist kristalliner Anteil an homogener Portion.')
