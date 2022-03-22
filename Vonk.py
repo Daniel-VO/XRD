@@ -40,15 +40,20 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion
 		if isinstance(value,str):
 			atoms[i]=xu.materials.atom.Atom(value[0]+value[1:].lower(),1)
 
-	# ~ plt.plot(twotheta_deg,fsquared(vects,atoms,energy)*vects**2/(fsquared(vects,atoms,energy)*vects**2)[-1])
-	# ~ plt.plot(twotheta_deg,yobs/yobs[-1])
+	fs=fsquared(vects,atoms,energy)*vects**2/(fsquared(vects,atoms,energy)*vects**2)[-1]
+	yo=yobs/yobs[-1]
+	bound=vects[numpy.where((vects>bound)&(fs>yo))][0]
+	print('Grenze: '+str(bound)+' A^-1')
+
+	# ~ plt.plot(vects,fs)
+	# ~ plt.plot(vects,yo)
 	# ~ plt.show()
 
 	err={}
 
 	#Berechnung der inkohaerenten Streuung J, Korrektur von yobs
-	if max(vects)>0.6:
-		argsJ=numpy.where(vects[1:]>0.6)
+	if max(vects)>bound:
+		argsJ=numpy.where(vects[1:]>bound)
 		params=lmfit.Parameters()
 		params.add('J',1,min=0)
 		def VonkTfitfunc(params):
@@ -66,7 +71,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion
 		J=uq(0,pq.dimensionless,0)
 
 	#Berechnung von Rulands R, Anpassung durch Vonks Funktion
-	argsR=numpy.where(vects[1:]>0.6)
+	argsR=numpy.where(vects[1:]>bound)
 	params=lmfit.Parameters()
 	params.add('C0',1,min=1)
 	params.add('C1',0)
