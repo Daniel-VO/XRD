@@ -41,7 +41,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion
 			atoms[i]=xu.materials.atom.Atom(value[0]+value[1:].lower(),1)
 
 	err={}
-	args=numpy.where(vects[1:]>0.7)
+	args=numpy.where(vects[1:]>0.6)
 
 	#Berechnung der inkohaerenten Streuung J, Korrektur von yobs
 	params=lmfit.Parameters()
