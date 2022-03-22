@@ -14,25 +14,25 @@ from quantities import UncertainQuantity as uq
 from scipy import integrate
 from scipy import constants
 
-def fsquared(vects,atoms,energy):	#Atomare Streufaktoren
+def fsquared(vects,atoms,energy):									#Atomare Streufaktoren
 	return numpy.real(numpy.average(numpy.array([i.f(2*numpy.pi*vects,en=energy) for i in atoms])**2,axis=0))
 
-def R(vects,yobs,ycryst):		#Vonk R-Funktion
+def R(vects,yobs,ycryst):											#Vonk R-Funktion
 	return integrate.cumtrapz(yobs,x=vects)/integrate.cumtrapz(ycryst,x=vects)
 
-def T(vects,atoms,energy,yobs,J):			#Vonk T-Funktion
+def T(vects,atoms,energy,yobs,J):									#Vonk T-Funktion
 	return integrate.cumtrapz((fsquared(vects,atoms,energy)+J)*vects**2,x=vects)/integrate.cumtrapz(yobs,x=vects)
 
-def Vonkfunc(vects,fc,k):	#Vonk Anpassung an R
+def Vonkfunc(vects,fc,k):											#Vonk Anpassung an R
 	return 1/fc+(k/(2*fc))/vects**2
 
-def Vonksecfunc(vects,C0,C1,C2):	#Vonk Anpassung an R mit Polynom zweiten Grades
+def Vonksecfunc(vects,C0,C1,C2):									#Vonk Anpassung an R mit Polynom zweiten Grades
 	return C0+C1*vects**2+C2*vects**4
 
 def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion Vonk.Vonk()
 	L=numpy.cos(numpy.radians(twotheta_deg/2))/numpy.sin(numpy.radians(twotheta_deg))**2
-	yobs/=L
-	ycryst/=L
+	yobs/=L															#Lorentz-Korrektur anstelle von *s^2
+	ycryst/=L														#Lorentz-Korrektur anstelle von *s^2
 	vects=2*numpy.sin(numpy.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
 	energy=xu.utilities_noconf.energy(emission)
 
