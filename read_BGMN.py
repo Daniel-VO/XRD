@@ -31,12 +31,11 @@ for i in glob.glob('*.str'):
 					else:
 						print('Grenze Gitterparameter nicht gesetzt - bitte pruefen!')
 
-if len(sys.argv)==1:
-	filenamepattern=input('Muster Dateinamen (filenamepattern): ')
-else:
-	filenamepattern=sys.argv[1]
+filenamepattern=input('Muster Dateinamen [*]: ')
+if filenamepattern=='':
+	filenamepattern='*'
 
-switch=input('hetero oder homo? ')
+switch=input('hetero oder homo [homo]? ')
 if switch=='':
 	switch='homo'
 
