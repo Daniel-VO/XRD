@@ -37,6 +37,8 @@ else:
 	filenamepattern=sys.argv[1]
 
 switch=input('hetero oder homo? ')
+if switch=='':
+	switch='homo'
 
 lowerbound=input('Untere Integrationsgrenze in A^-1 [0.6]: ')
 if lowerbound=='':
