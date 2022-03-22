@@ -40,45 +40,31 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion
 		if isinstance(value,str):
 			atoms[i]=xu.materials.atom.Atom(value[0]+value[1:].lower(),1)
 
-	fs=fsquared(vects,atoms,energy)*vects**2/(fsquared(vects,atoms,energy)*vects**2)[-1]
-	yo=yobs/numpy.median(yobs[numpy.where(twotheta_deg>max(twotheta_deg)-1)])
-	bound=vects[numpy.where((vects>0.6)&(fs>yo))][0]
-	print('Grenze: '+str(bound)+' A^-1')
-
-	# ~ plt.plot(vects,fs)
-	# ~ plt.plot(vects,yo)
-	# ~ plt.show()
-
 	err={}
+	args=numpy.where(vects[1:]>0.7)
 
 	#Berechnung der inkohaerenten Streuung J, Korrektur von yobs
-	if max(vects)>bound:
-		argsJ=numpy.where(vects[1:]>bound)
-		params=lmfit.Parameters()
-		params.add('J',1,min=0)
-		def VonkTfitfunc(params):
-			prmT=params.valuesdict()
-			return T(vects,atoms,energy,yobs,prmT['J'])[argsJ]-T(vects,atoms,energy,yobs,prmT['J'])[argsJ][-1]
-		resultT=lmfit.minimize(VonkTfitfunc,params,method='least_squares')
-		prmT=resultT.params.valuesdict()
-		for key in resultT.params:
-			err[key]=resultT.params[key].stderr
-		# ~ resultT.params.pretty_print()
-		yobs-=prmT['J']
-		J=uq(prmT['J'],pq.dimensionless,err['J'])
-	else:
-		print('Warnung: Keine Bestimmung der inkohärenten Streuung - maximaler Streuvektor zu klein.')
-		J=uq(0,pq.dimensionless,0)
+	params=lmfit.Parameters()
+	params.add('J',1,min=0)
+	def VonkTfitfunc(params):
+		prmT=params.valuesdict()
+		return T(vects,atoms,energy,yobs,prmT['J'])[args]-T(vects,atoms,energy,yobs,prmT['J'])[args][-1]
+	resultT=lmfit.minimize(VonkTfitfunc,params,method='least_squares')
+	prmT=resultT.params.valuesdict()
+	for key in resultT.params:
+		err[key]=resultT.params[key].stderr
+	# ~ resultT.params.pretty_print()
+	yobs-=prmT['J']
+	J=uq(prmT['J'],pq.dimensionless,err['J'])
 
 	#Berechnung von Rulands R, Anpassung durch Vonks Funktion
-	argsR=numpy.where(vects[1:]>bound)
 	params=lmfit.Parameters()
 	params.add('C0',1,min=1)
 	params.add('C1',0)
 	params.add('C2',0)
 	def VonkRfitfunc(params):
 		prmR=params.valuesdict()
-		return R(vects,yobs,ycryst)[argsR]-Vonksecfunc(vects,prmR['C0'],prmR['C1'],prmR['C2'])[argsR]
+		return R(vects,yobs,ycryst)[args]-Vonksecfunc(vects,prmR['C0'],prmR['C1'],prmR['C2'])[args]
 	resultR=lmfit.minimize(VonkRfitfunc,params,method='least_squares')
 	prmR=resultR.params.valuesdict()
 	for key in resultR.params:
@@ -93,7 +79,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion
 		fig,ax1=plt.subplots(figsize=(7.5/2.54,5.3/2.54))
 		ax2=ax1.twinx()
 
-		ax1.plot(vects[argsR]**2,R(vects,yobs,ycryst)[argsR],'k',linewidth=0.5)
+		ax1.plot(vects[args]**2,R(vects,yobs,ycryst)[args],'k',linewidth=0.5)
 		ax1.plot(numpy.linspace(0,max(vects))**2,Vonksecfunc(numpy.linspace(0,max(vects)),prmR['C0'],prmR['C1'],prmR['C2']),'k--',linewidth=0.5)
 
 		ax2.plot(vects**2,yobs,'k',linewidth=0.5)
