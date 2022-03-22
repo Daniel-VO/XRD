@@ -36,7 +36,13 @@ if len(sys.argv)==1:
 else:
 	filenamepattern=sys.argv[1]
 
-switch=input('hetero oder homo?')
+switch=input('hetero oder homo? ')
+
+lowerbound=input('Untere Integrationsgrenze in A^-1 [0.6]: ')
+if lowerbound=='':
+	lowerbound=0.6
+else:
+	lowerbound=float(lowerbound)
 
 filenamelist=[]
 phaselist=[]
@@ -208,9 +214,9 @@ for i in glob.glob(filenamepattern+'.lst'):
 			ycryst=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=col)
 			if numpy.median(ycryst)!=0:
 				if switch=='homo':
-					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycryst,twotheta,emission,True)
+					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycryst,twotheta,emission,True,lowerbound)
 				elif switch=='hetero':
-					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yam+ycryst,ycryst,twotheta,emission,True)
+					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yam+ycryst,ycryst,twotheta,emission,True,lowerbound)
 					print('Warnung: fc ist kristalliner Anteil an homogener Portion.')
 				else:
 					print('Eingabe hetero / homo nicht verstanden, fc wird auf 0 gesetzt.')

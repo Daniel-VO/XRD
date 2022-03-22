@@ -29,7 +29,7 @@ def Vonkfunc(vects,fc,k):											#Vonk Anpassung an R
 def Vonksecfunc(vects,C0,C1,C2):									#Vonk Anpassung an R mit Polynom zweiten Grades
 	return C0+C1*vects**2+C2*vects**4
 
-def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion Vonk.Vonk()
+def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound):	#Hauptfunktion Vonk.Vonk()
 	L=numpy.cos(numpy.radians(twotheta_deg/2))/numpy.sin(numpy.radians(twotheta_deg))**2
 	yobs/=L															#Lorentz-Korrektur anstelle von *s^2
 	ycryst/=L														#Lorentz-Korrektur anstelle von *s^2
@@ -41,7 +41,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots):	#Hauptfunktion
 			atoms[i]=xu.materials.atom.Atom(value[0]+value[1:].lower(),1)
 
 	err={}
-	args=numpy.where(vects[1:]>0.6)
+	args=numpy.where(vects[1:]>lowerbound)
 
 	#Berechnung der inkohaerenten Streuung J, Korrektur von yobs
 	params=lmfit.Parameters()
