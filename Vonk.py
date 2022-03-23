@@ -99,7 +99,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound):	#Ha
 
 		ax1.set_xlabel(r'$s_p^2/\rm{\AA}^{-2}$',fontsize=10)
 		ax1.set_ylabel(r'$R/1$',fontsize=10)
-		ax2.set_ylabel(r'$I/(\rm{e\,\AA}^{-2})$',fontsize=10)
+		ax2.set_ylabel(r'$Is^2/(\rm{e\,\AA}^{-2})$',fontsize=10)
 		ax1.tick_params(direction='out')
 		ax1.tick_params(axis='x',pad=2,labelsize=8)
 		ax1.tick_params(axis='y',pad=2,labelsize=8)
