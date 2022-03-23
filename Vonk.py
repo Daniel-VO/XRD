@@ -1,5 +1,5 @@
 """
-Created 22. March 2022 by Daniel Van Opdenbosch, Technical University of Munich
+Created 23. March 2022 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -21,7 +21,7 @@ def R(vects,yobs,ycryst):											#Vonk R-Funktion
 	return integrate.cumtrapz(yobs,x=vects)/integrate.cumtrapz(ycryst,x=vects)
 
 def T(vects,atoms,energy,yobs,J):									#Vonk T-Funktion
-	return integrate.cumtrapz((fsquared(vects,atoms,energy)+J)*vects**2,x=vects)/integrate.cumtrapz(yobs,x=vects)
+	return integrate.cumtrapz(fsquared(vects,atoms,energy)*vects**2,x=vects)/integrate.cumtrapz(yobs-J,x=vects)
 
 def Vonkfunc(vects,fc,k):											#Vonk Anpassung an R
 	return 1/fc+(k/(2*fc))/vects**2
@@ -30,7 +30,7 @@ def Vonksecfunc(vects,C0,C1,C2):									#Vonk Anpassung an R mit Polynom zweite
 	return C0+C1*vects**2+C2*vects**4
 
 def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound):	#Hauptfunktion Vonk.Vonk()
-	L=numpy.cos(numpy.radians(twotheta_deg/2))/numpy.sin(numpy.radians(twotheta_deg))**2
+	L=1/(2*numpy.sin(numpy.radians(twotheta_deg/2))*numpy.sin(numpy.radians(twotheta_deg)))
 	yobs/=L															#Lorentz-Korrektur anstelle von *s^2
 	ycryst/=L														#Lorentz-Korrektur anstelle von *s^2
 	vects=2*numpy.sin(numpy.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
@@ -56,6 +56,11 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound):	#Ha
 	# ~ resultT.params.pretty_print()
 	yobs-=prmT['J']
 	J=uq(prmT['J'],pq.dimensionless,err['J'])
+
+	#Normierung auf elektronische Einheiten \AA^{-2}
+	normfakt=numpy.median((fsquared(vects,atoms,energy)*vects**2/yobs)[numpy.where(twotheta_deg>max(twotheta_deg)-2)])
+	yobs*=normfakt
+	ycryst*=normfakt
 
 	#Berechnung von Rulands R, Anpassung durch Vonks Funktion
 	RulandR=R(vects,yobs,ycryst)
@@ -85,15 +90,16 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound):	#Ha
 
 		ax2.plot(vects**2,yobs,'k',linewidth=0.5)
 		ax2.plot(vects**2,ycryst,'k--',linewidth=0.5)
+		ax2.plot(vects**2,fsquared(vects,atoms,energy)*vects**2,'w',linewidth=0.5)
+		ax2.plot(vects**2,fsquared(vects,atoms,energy)*vects**2,'k:',linewidth=0.5)
 
 		ax1.set_xlim([0,None])
 		ax1.set_ylim([0,None])
 		ax2.set_ylim([0,None])
-		ax2.set_yticks([])
 
 		ax1.set_xlabel(r'$s_p^2/\rm{\AA}^{-2}$',fontsize=10)
 		ax1.set_ylabel(r'$R/1$',fontsize=10)
-		ax2.set_ylabel(r'$I/1$',fontsize=10)
+		ax2.set_ylabel(r'$I/(\rm{e\,\AA}^{-2})$',fontsize=10)
 		ax1.tick_params(direction='out')
 		ax1.tick_params(axis='x',pad=2,labelsize=8)
 		ax1.tick_params(axis='y',pad=2,labelsize=8)

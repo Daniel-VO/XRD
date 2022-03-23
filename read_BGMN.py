@@ -1,5 +1,5 @@
 """
-Created 22. March 2022 by Daniel Van Opdenbosch, Technical University of Munich
+Created 23. March 2022 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -31,19 +31,20 @@ for i in glob.glob('*.str'):
 					else:
 						print('Grenze Gitterparameter nicht gesetzt - bitte pruefen!')
 
-filenamepattern=input('Muster Dateinamen [*]: ')
-if filenamepattern=='':
-	filenamepattern='*'
-
-switch=input('hetero oder homo [homo]? ')
-if switch=='':
-	switch='homo'
-
-lowerbound=input('Untere Integrationsgrenze in A^-1 [0.6]: ')
-if lowerbound=='':
-	lowerbound=0.6
+if len(sys.argv)==4:
+	filenamepattern,switch,lowerbound=sys.argv[1],sys.argv[2],float(sys.argv[3])
 else:
-	lowerbound=float(lowerbound)
+	filenamepattern=input('Muster Dateinamen [*]: ')
+	if filenamepattern=='':
+		filenamepattern='*'
+	switch=input('hetero oder homo [homo]? ')
+	if switch=='':
+		switch='homo'
+	lowerbound=input('Untere Integrationsgrenze in A^-1 [0.6]: ')
+	if lowerbound=='':
+		lowerbound=0.6
+	else:
+		lowerbound=float(lowerbound)
 
 filenamelist=[]
 phaselist=[]
