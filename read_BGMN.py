@@ -31,8 +31,8 @@ for i in glob.glob('*.str'):
 					else:
 						print('Grenze Gitterparameter nicht gesetzt - bitte pruefen!')
 
-if len(sys.argv)==4:
-	filenamepattern,switch,lowerbound=sys.argv[1],sys.argv[2],float(sys.argv[3])
+if len(sys.argv)==5:
+	filenamepattern,switch,lowerbound,incohcor=sys.argv[1],sys.argv[2],float(sys.argv[3]),eval(sys.argv[4])
 else:
 	filenamepattern=input('Muster Dateinamen [*]: ')
 	if filenamepattern=='':
@@ -45,6 +45,11 @@ else:
 		lowerbound=0.6
 	else:
 		lowerbound=float(lowerbound)
+	incohcor=input('Korrektur fuer inkohaerente Streuung [False]? ')
+	if incohcor=='':
+		incohcor=False
+	else:
+		incohcor=eval(incohcor)
 
 filenamelist=[]
 phaselist=[]
@@ -216,9 +221,9 @@ for i in glob.glob(filenamepattern+'.lst'):
 			ycryst=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=col)
 			if numpy.median(ycryst)!=0:
 				if switch=='homo':
-					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycryst,twotheta,emission,True,lowerbound)
+					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycryst,twotheta,emission,True,lowerbound,incohcor)
 				elif switch=='hetero':
-					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yam+ycryst,ycryst,twotheta,emission,True,lowerbound)
+					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yam+ycryst,ycryst,twotheta,emission,True,lowerbound,incohcor)
 					print('Warnung: fc ist kristalliner Anteil an homogener Portion.')
 				else:
 					print('Eingabe hetero / homo nicht verstanden, fc wird auf 0 gesetzt.')

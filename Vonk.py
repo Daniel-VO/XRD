@@ -29,7 +29,7 @@ def Vonkfunc(vects,fc,k):														#Vonk Anpassung an R
 def Vonksecfunc(vects,C0,C1,C2):												#Vonk Anpassung an R mit Polynom zweiten Grades
 	return C0+C1*vects**2+C2*vects**4
 
-def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound):	#Hauptfunktion Vonk.Vonk()
+def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incohcor):	#Hauptfunktion Vonk.Vonk()
 	L=1/(2*numpy.sin(numpy.radians(twotheta_deg/2))*numpy.sin(numpy.radians(twotheta_deg)))
 	yobs/=L																		#Lorentz-Korrektur anstelle von *s^2
 	ycryst/=L																	#Lorentz-Korrektur anstelle von *s^2
@@ -44,18 +44,21 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound):	#Ha
 	args=numpy.where(vects[1:]>lowerbound)
 
 	#Berechnung der inkohaerenten Streuung J, Korrektur von yobs
-	params=lmfit.Parameters()
-	params.add('J',1,min=0)
-	def VonkTfitfunc(params):
-		prmT=params.valuesdict()
-		return T(vects,atoms,energy,yobs,prmT['J'])[args]-T(vects,atoms,energy,yobs,prmT['J'])[args][-1]
-	resultT=lmfit.minimize(VonkTfitfunc,params,method='least_squares')
-	prmT=resultT.params.valuesdict()
-	for key in resultT.params:
-		err[key]=resultT.params[key].stderr
-	# ~ resultT.params.pretty_print()
-	yobs-=prmT['J']
-	J=uq(prmT['J'],pq.dimensionless,err['J'])
+	if incohcor==True:
+		params=lmfit.Parameters()
+		params.add('J',1,min=0)
+		def VonkTfitfunc(params):
+			prmT=params.valuesdict()
+			return T(vects,atoms,energy,yobs,prmT['J'])[args]-T(vects,atoms,energy,yobs,prmT['J'])[args][-1]
+		resultT=lmfit.minimize(VonkTfitfunc,params,method='least_squares')
+		prmT=resultT.params.valuesdict()
+		for key in resultT.params:
+			err[key]=resultT.params[key].stderr
+		# ~ resultT.params.pretty_print()
+		yobs-=prmT['J']
+		J=uq(prmT['J'],pq.dimensionless,err['J'])
+	else:
+		J=uq(0,pq.dimensionless,0)
 
 	#Normierung auf elektronische Einheiten eA^-2
 	normfakt=numpy.median((fsquared(vects,atoms,energy)*vects**2/yobs)[numpy.where(twotheta_deg>max(twotheta_deg)-2)])
