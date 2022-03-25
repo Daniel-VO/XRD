@@ -1,5 +1,5 @@
 """
-Created 23. March 2022 by Daniel Van Opdenbosch, Technical University of Munich
+Created 25. March 2022 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -12,7 +12,6 @@ import xrayutilities as xu
 import quantities as pq
 from quantities import UncertainQuantity as uq
 from scipy import integrate
-from scipy import constants
 
 def fsquared(vects,atoms,energy):												#Atomare Streufaktoren
 	return numpy.real(numpy.average(numpy.array([i.f(2*numpy.pi*vects,en=energy) for i in atoms])**2,axis=0))
@@ -21,7 +20,7 @@ def R(vects,yobs,ycryst):														#Vonk R-Funktion
 	return integrate.cumtrapz(yobs,x=vects)/integrate.cumtrapz(ycryst,x=vects)
 
 def T(vects,atoms,energy,yobs,J):												#Vonk T-Funktion
-	return integrate.cumtrapz(fsquared(vects,atoms,energy)*vects**2,x=vects)/integrate.cumtrapz(yobs-J,x=vects)
+	return integrate.cumtrapz(fsquared(vects,atoms,energy)*vects**2,x=vects)/integrate.cumtrapz(yobs-J*vects**2,x=vects)
 
 def Vonkfunc(vects,fc,k):														#Vonk Anpassung an R
 	return 1/fc+(k/(2*fc))/vects**2
@@ -55,7 +54,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incoh
 		for key in resultT.params:
 			err[key]=resultT.params[key].stderr
 		# ~ resultT.params.pretty_print()
-		yobs-=prmT['J']
+		yobs-=prmT['J']*vects**2
 		J=uq(prmT['J'],pq.dimensionless,err['J'])
 	else:
 		J=uq(0,pq.dimensionless,0)
