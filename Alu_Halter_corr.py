@@ -42,17 +42,13 @@ for i in files:
 			argscut.append(numpy.arange(i-int(1/2/step),i+int(1/2/step)))
 	twotheta_deg,yobs,yh=numpy.delete(twotheta_deg,argscut),numpy.delete(yobs,argscut),numpy.delete(yh,argscut)
 
-	vects=2*numpy.sin(numpy.radians(twotheta_deg/2))/1.5406
-	argsfit=numpy.where(vects>0.6)
 	yobsforfit,yh=signal.savgol_filter(yobs,101,1),signal.savgol_filter(yh,101,1)
 	params=lmfit.Parameters()
-	params.add('Cyh',0.5,min=0,max=2)
+	params.add('Cyh',1,min=0,max=2)
 	def minfunc(params):
 		prm=params.valuesdict()
-		return (numpy.gradient(yobsforfit[argsfit])		/yobsforfit[argsfit]-\
-				numpy.gradient(prm['Cyh']*yh[argsfit])	/(prm['Cyh']*yh[argsfit]))*\
-				vects[argsfit]**2
-	result=lmfit.minimize(minfunc,params,method='nelder')
+		return numpy.gradient(yobsforfit-prm['Cyh']*yh)
+	result=lmfit.minimize(minfunc,params)
 	prm=result.params.valuesdict()
 	yobs-=prm['Cyh']*yh
 
