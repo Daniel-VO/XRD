@@ -47,8 +47,8 @@ for i in files:
 	params.add('Cyh',1)
 	def minfunc(params):
 		prm=params.valuesdict()
-		return numpy.gradient(yobsforfit-prm['Cyh']*yh)
-	result=lmfit.minimize(minfunc,params)
+		return numpy.gradient(yobsforfit-prm['Cyh']*yh)*(1+numpy.sum((prm['Cyh']*yh-yobsforfit)[numpy.where(prm['Cyh']*yh>yobsforfit)]))
+	result=lmfit.minimize(minfunc,params,method='nelder')
 	prm=result.params.valuesdict()
 	yobs-=prm['Cyh']*yh
 
