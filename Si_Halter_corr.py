@@ -42,13 +42,17 @@ for i in files:
 
 
 
-	yh=signal.savgol_filter(yh,201,1)
+	vects=2*numpy.sin(numpy.radians(twotheta_deg/2))/1.5406
+	argsfit=numpy.where(vects>0.6)
+	yobsforfit,yh=signal.savgol_filter(yobs,101,1),signal.savgol_filter(yh,101,1)
 	params=lmfit.Parameters()
-	params.add('Cyh',1,min=0,max=2)
+	params.add('Cyh',0.5,min=0,max=2)
 	def minfunc(params):
 		prm=params.valuesdict()
-		return (numpy.gradient(yobs)-numpy.gradient(prm['Cyh']*yh))*(2*numpy.sin(numpy.radians(twotheta_deg/2))/1.5406)**2
-	result=lmfit.minimize(minfunc,params)
+		return (numpy.gradient(yobsforfit[argsfit])		/yobsforfit[argsfit]-\
+				numpy.gradient(prm['Cyh']*yh[argsfit])	/(prm['Cyh']*yh[argsfit]))*\
+				vects[argsfit]**2
+	result=lmfit.minimize(minfunc,params,method='nelder')
 	prm=result.params.valuesdict()
 	yobs-=prm['Cyh']*yh
 
@@ -57,6 +61,7 @@ for i in files:
 	plt.text(min(twotheta_deg),min(prm['Cyh']*yh),prm['Cyh'].round(2))
 
 	plt.yscale('log')
+	plt.ylim([1,None])
 	plt.savefig(filename+'_corr.png')
 
 	numpy.savetxt(filename+'_bgcorr.xy',numpy.transpose([twotheta_deg,abs(yobs)]))
