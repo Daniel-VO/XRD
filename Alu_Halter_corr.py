@@ -1,5 +1,5 @@
 """
-Created 23. June 2022 by Daniel Van Opdenbosch, Technical University of Munich
+Created 24. June 2022 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -13,9 +13,13 @@ import matplotlib.pyplot as plt
 from scipy import interpolate
 
 
-os.system('rm '+os.path.splitext(sys.argv[1])[0]+'*_corr.png')
-os.system('rm '+os.path.splitext(sys.argv[1])[0]+'*_bgcorr.xy')
-files=list(filter(lambda a:'Halter' not in a,glob.glob(os.path.splitext(sys.argv[1])[0]+'*.xy')))
+if len(sys.argv)>1:
+	filepattern=sys.argv[1]
+else:
+	filepattern=''
+os.system('rm '+os.path.splitext(filepattern)[0]+'*_corr.png')
+os.system('rm '+os.path.splitext(filepattern)[0]+'*_bgcorr.xy')
+files=list(filter(lambda a:'Halter' not in a,glob.glob(os.path.splitext(filepattern)[0]+'*.xy')))
 
 tt,yh0=numpy.genfromtxt('Alu_Halter_flach.xy',unpack=True)
 f=interpolate.interp1d(tt,yh0)
@@ -38,7 +42,7 @@ for i in files:
 
 	step,argscut=numpy.diff(twotheta_deg)[0],[]
 	for i,valuei in enumerate(yh):
-		if twotheta_deg[i]>12 and valuei>min(yh[i-int(2/step):i+int(2/step)])*2:
+		if twotheta_deg[i]>min(twotheta_deg)+2 and valuei>min(yh[i-int(2/step):i+int(2/step)])*2:
 			argscut.append(numpy.arange(i-int(1/2/step),i+int(1/2/step)))
 	twotheta_deg,yobs=numpy.delete(twotheta_deg,argscut),numpy.delete(yobs,argscut)
 

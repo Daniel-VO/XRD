@@ -1,5 +1,5 @@
 """
-Created 23. June 2022 by Daniel Van Opdenbosch, Technical University of Munich
+Created 24. June 2022 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -13,9 +13,13 @@ import lmfit
 from scipy import interpolate
 from scipy import signal
 
-os.system('rm '+os.path.splitext(sys.argv[1])[0]+'*_corr.png')
-os.system('rm '+os.path.splitext(sys.argv[1])[0]+'*_bgcorr.xy')
-files=list(filter(lambda a:'Halter' not in a,glob.glob(os.path.splitext(sys.argv[1])[0]+'*.xy')))
+if len(sys.argv)>1:
+	filepattern=sys.argv[1]
+else:
+	filepattern=''
+os.system('rm '+os.path.splitext(filepattern)[0]+'*_corr.png')
+os.system('rm '+os.path.splitext(filepattern)[0]+'*_bgcorr.xy')
+files=list(filter(lambda a:'Halter' not in a,glob.glob(os.path.splitext(filepattern)[0]+'*.xy')))
 
 tt,yh0=numpy.genfromtxt('Si_Halter.xy',unpack=True)
 f=interpolate.interp1d(tt,signal.savgol_filter(yh0,201,1))
