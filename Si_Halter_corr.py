@@ -22,7 +22,7 @@ os.system('rm '+os.path.splitext(filepattern)[0]+'*_bgcorr.xy')
 files=list(filter(lambda a:'Halter' not in a,glob.glob(os.path.splitext(filepattern)[0]+'*.xy')))
 
 tt,yh0=numpy.genfromtxt('Si_Halter.xy',unpack=True)
-f=interpolate.interp1d(tt,signal.savgol_filter(yh0,201,1))
+f=interpolate.interp1d(tt,yh0)
 
 for i in files:
 	filename=os.path.splitext(i)[0]
@@ -36,6 +36,13 @@ for i in files:
 	plt.plot(twotheta_deg,yobs)
 	plt.plot(twotheta_deg,yh)
 
+
+
+
+
+
+
+	yh=signal.savgol_filter(yh,201,1)
 	params=lmfit.Parameters()
 	params.add('Cyh',1,min=0,max=2)
 	def minfunc(params):

@@ -9,9 +9,9 @@ import sys
 import glob
 import numpy
 import matplotlib.pyplot as plt
-
+import lmfit
 from scipy import interpolate
-
+from scipy import signal
 
 if len(sys.argv)>1:
 	filepattern=sys.argv[1]
@@ -36,18 +36,25 @@ for i in files:
 	plt.plot(twotheta_deg,yobs)
 	plt.plot(twotheta_deg,yh)
 
-	ttmax=twotheta_deg[numpy.where(yh==max(yh))]
-	argssubt=numpy.where((twotheta_deg>ttmax-2)&(twotheta_deg<ttmax+2))
-	yobs-=yh*(max(yobs[argssubt])-min(yobs[argssubt]))/(max(yh[argssubt])-min(yh[argssubt]))
-
 	step,argscut=numpy.diff(twotheta_deg)[0],[]
 	for i,valuei in enumerate(yh):
 		if twotheta_deg[i]>min(twotheta_deg)+2 and valuei>min(yh[i-int(2/step):i+int(2/step)])*2:
 			argscut.append(numpy.arange(i-int(1/2/step),i+int(1/2/step)))
-	twotheta_deg,yobs=numpy.delete(twotheta_deg,argscut),numpy.delete(yobs,argscut)
+	twotheta_deg,yobs,yh=numpy.delete(twotheta_deg,argscut),numpy.delete(yobs,argscut),numpy.delete(yh,argscut)
+
+	yh=signal.savgol_filter(yh,201,1)
+	params=lmfit.Parameters()
+	params.add('Cyh',1,min=0,max=2)
+	def minfunc(params):
+		prm=params.valuesdict()
+		return (numpy.gradient(yobs)-numpy.gradient(prm['Cyh']*yh))*(2*numpy.sin(numpy.radians(twotheta_deg/2))/1.5406)**2
+	result=lmfit.minimize(minfunc,params)
+	prm=result.params.valuesdict()
+	yobs-=prm['Cyh']*yh
 
 	plt.plot(twotheta_deg,yobs)
-
+	plt.plot(twotheta_deg,prm['Cyh']*yh)
+	plt.text(min(twotheta_deg),min(prm['Cyh']*yh),prm['Cyh'].round(2))
 
 	plt.yscale('log')
 	plt.savefig(filename+'_corr.png')
