@@ -44,7 +44,7 @@ for i in files:
 
 	yobsforfit,yh=signal.savgol_filter(yobs,101,1),signal.savgol_filter(yh,101,1)
 	params=lmfit.Parameters()
-	params.add('Cyh',1,min=0,max=2)
+	params.add('Cyh',1)
 	def minfunc(params):
 		prm=params.valuesdict()
 		return numpy.gradient(yobsforfit-prm['Cyh']*yh)
