@@ -53,7 +53,7 @@ for i in files:
 	params.add('Cyh',1)
 	def minfunc(params):
 		prm=params.valuesdict()
-		return (Lfsq/Lfsq[-1]-(yobs-prm['Cyh']*yh)/(yobs-prm['Cyh']*yh)[-1])[numpy.where(twotheta_deg>45)]
+		return (Lfsq/Lfsq[-1]-(yobs-prm['Cyh']*yh)/(yobs-prm['Cyh']*yh)[-1])[numpy.where(twotheta_deg>90)]
 	result=lmfit.minimize(minfunc,params)
 	prm=result.params.valuesdict()
 	yobs-=prm['Cyh']*yh
