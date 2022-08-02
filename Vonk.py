@@ -1,5 +1,5 @@
 """
-Created 25. March 2022 by Daniel Van Opdenbosch, Technical University of Munich
+Created 02. August 2022 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -114,6 +114,6 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incoh
 		plt.close('all')
 
 	fc=1/uq(prmR['C0'],pq.dimensionless,err['C0'])
-	k=2*fc*abs(uq(prmR['C1'],pq.angstrom**2,err['C1'])**2+uq(prmR['C2'],pq.angstrom**4,err['C2']))**0.5
+	k=2*fc*uq(prmR['C1'],pq.angstrom**2,err['C1'])
 
 	return fc,k,J
