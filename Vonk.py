@@ -68,7 +68,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incoh
 	RulandR=R(vects,yobs,ycryst)
 	params=lmfit.Parameters()
 	params.add('C0',1,min=1)
-	params.add('C1',0)
+	params.add('C1',0,min=0)
 	params.add('C2',0)
 	def VonkRfitfunc(params):
 		prmR=params.valuesdict()
