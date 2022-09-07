@@ -1,5 +1,5 @@
 """
-Created 02. August 2022 by Daniel Van Opdenbosch, Technical University of Munich
+Created 07. September 2022 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -25,8 +25,8 @@ def T(vects,atoms,energy,yobs,J):												#Vonk T-Funktion
 def Vonkfunc(vects,fc,k):														#Vonk Anpassung an R
 	return 1/fc+(k/(2*fc))/vects**2
 
-def Vonksecfunc(vects,C0,C1,C2):												#Vonk Anpassung an R mit Polynom zweiten Grades
-	return C0+C1*vects**2+C2*vects**4
+def polysecond(x,C0,C1,C2):														#Anpassung an R mit Polynom zweiten Grades
+	return C0+C1*x+C2*x**2
 
 def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incohcor):	#Hauptfunktion Vonk.Vonk()
 	L=1/(2*numpy.sin(numpy.radians(twotheta_deg/2))*numpy.sin(numpy.radians(twotheta_deg)))
@@ -72,7 +72,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incoh
 	params.add('C2',0)
 	def VonkRfitfunc(params):
 		prmR=params.valuesdict()
-		return RulandR[args]-Vonksecfunc(vects,prmR['C0'],prmR['C1'],prmR['C2'])[args]
+		return RulandR[args]-polysecond(vects**2,prmR['C0'],prmR['C1'],prmR['C2'])[args]
 	resultR=lmfit.minimize(VonkRfitfunc,params,method='least_squares')
 	prmR=resultR.params.valuesdict()
 	for key in resultR.params:
@@ -88,7 +88,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incoh
 		ax2=ax1.twinx()
 
 		ax1.plot(vects[args]**2,RulandR[args],'k',linewidth=0.5)
-		ax1.plot(numpy.linspace(0,max(vects))**2,Vonksecfunc(numpy.linspace(0,max(vects)),prmR['C0'],prmR['C1'],prmR['C2']),'k--',linewidth=0.5)
+		ax1.plot(numpy.linspace(0,max(vects))**2,polysecond(numpy.linspace(0,max(vects))**2,prmR['C0'],prmR['C1'],prmR['C2']),'k--',linewidth=0.5)
 
 		ax2.plot(vects**2,yobs,'k',linewidth=0.5)
 		ax2.plot(vects**2,ycryst,'k--',linewidth=0.5)
