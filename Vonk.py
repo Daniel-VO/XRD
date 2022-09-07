@@ -88,7 +88,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incoh
 		ax2=ax1.twinx()
 
 		ax1.plot(vects[args]**2,RulandR[args],'k',linewidth=0.5)
-		ax1.plot(numpy.linspace(0,max(vects))**2,polysecond(numpy.linspace(0,max(vects))**2,prmR['C0'],prmR['C1'],prmR['C2']),'k--',linewidth=0.5)
+		ax1.plot(numpy.linspace(0,max(vects**2)),polysecond(numpy.linspace(0,max(vects**2)),prmR['C0'],prmR['C1'],prmR['C2']),'k--',linewidth=0.5)
 
 		ax2.plot(vects**2,yobs,'k',linewidth=0.5)
 		ax2.plot(vects**2,ycryst,'k--',linewidth=0.5)
