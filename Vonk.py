@@ -1,5 +1,5 @@
 """
-Created 08. September 2022 by Daniel Van Opdenbosch, Technical University of Munich
+Created 15. September 2022 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -29,9 +29,9 @@ def polysecond(x,C0,C1,C2):														#Anpassung an R mit Polynom zweiten Gra
 	return C0+C1*x+C2*x**2
 
 def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incohcor):	#Hauptfunktion Vonk.Vonk()
-	L=1/(2*numpy.sin(numpy.radians(twotheta_deg/2))*numpy.sin(numpy.radians(twotheta_deg)))
-	yobs/=L																		#Lorentz-Korrektur anstelle von *s^2
-	ycryst/=L																	#Lorentz-Korrektur anstelle von *s^2
+	Lor=1/(numpy.sin(numpy.radians(twotheta_deg/2))*numpy.sin(numpy.radians(twotheta_deg)))
+	yobs/=Lor																	#Lorentz-Korrektur anstelle von *s^2
+	ycryst/=Lor																	#Lorentz-Korrektur anstelle von *s^2
 	vects=2*numpy.sin(numpy.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
 	energy=xu.utilities_noconf.energy(emission)
 
