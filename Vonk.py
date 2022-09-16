@@ -29,10 +29,9 @@ def polysecond(x,C0,C1,C2):														#Anpassung an R mit Polynom zweiten Gra
 	return C0+C1*x+C2*x**2
 
 def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,plots,lowerbound,incohcor):	#Hauptfunktion Vonk.Vonk()
-	Lor=1/(numpy.sin(numpy.radians(twotheta_deg/2))*numpy.sin(numpy.radians(twotheta_deg)))
-	yobs/=Lor																	#Lorentz-Korrektur anstelle von *s^2
-	ycoh/=Lor																	#Lorentz-Korrektur anstelle von *s^2
 	vects=2*numpy.sin(numpy.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
+	yobs*=vects**2
+	ycoh*=vects**2
 	energy=xu.utilities_noconf.energy(emission)
 
 	for i,value in enumerate(atoms):
