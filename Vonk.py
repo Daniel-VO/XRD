@@ -16,8 +16,8 @@ from scipy import integrate
 def fsquared(vects,atoms,energy):												#Atomare Streufaktoren
 	return numpy.real(numpy.average(numpy.array([i.f(2*numpy.pi*vects,en=energy) for i in atoms])**2,axis=0))
 
-def R(vects,yobs,ycryst):														#Vonk R-Funktion
-	return integrate.cumtrapz(yobs,x=vects)/integrate.cumtrapz(ycryst,x=vects)
+def R(vects,yobs,ycoh):														#Vonk R-Funktion
+	return integrate.cumtrapz(yobs,x=vects)/integrate.cumtrapz(ycoh,x=vects)
 
 def T(vects,atoms,energy,yobs,J):												#Vonk T-Funktion
 	return integrate.cumtrapz(fsquared(vects,atoms,energy)*vects**2,x=vects)/integrate.cumtrapz(yobs-J*vects**2,x=vects)
@@ -28,10 +28,10 @@ def Vonkfunc(vects,fc,k):														#Vonk Anpassung an R
 def polysecond(x,C0,C1,C2):														#Anpassung an R mit Polynom zweiten Grades
 	return C0+C1*x+C2*x**2
 
-def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incohcor):	#Hauptfunktion Vonk.Vonk()
+def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,plots,lowerbound,incohcor):	#Hauptfunktion Vonk.Vonk()
 	Lor=1/(numpy.sin(numpy.radians(twotheta_deg/2))*numpy.sin(numpy.radians(twotheta_deg)))
 	yobs/=Lor																	#Lorentz-Korrektur anstelle von *s^2
-	ycryst/=Lor																	#Lorentz-Korrektur anstelle von *s^2
+	ycoh/=Lor																	#Lorentz-Korrektur anstelle von *s^2
 	vects=2*numpy.sin(numpy.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
 	energy=xu.utilities_noconf.energy(emission)
 
@@ -39,15 +39,14 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incoh
 		if isinstance(value,str):
 			atoms[i]=xu.materials.atom.Atom(value[0]+value[1:].lower(),1)
 
-	args=numpy.where(vects[1:]>lowerbound)
-
 	#Berechnung der inkohaerenten Streuung J, Korrektur von yobs
+	argsJ=numpy.where(vects[1:]>0.6)
 	if incohcor==True:
 		params=lmfit.Parameters()
 		params.add('J',1,min=0)
 		def VonkTfitfunc(params):
 			prmT=params.valuesdict()
-			return T(vects,atoms,energy,yobs,prmT['J'])[args]-T(vects,atoms,energy,yobs,prmT['J'])[args][-1]
+			return T(vects,atoms,energy,yobs,prmT['J'])[argsJ]-T(vects,atoms,energy,yobs,prmT['J'])[argsJ][-1]
 		resultT=lmfit.minimize(VonkTfitfunc,params,method='least_squares')
 		prmT=resultT.params.valuesdict()
 		for key in resultT.params:
@@ -61,10 +60,11 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incoh
 	#Normierung auf elektronische Einheiten eA^-2
 	normEU=numpy.trapz(fsquared(vects,atoms,energy)*vects**2,x=vects)/numpy.trapz(yobs,x=vects)
 	yobs*=normEU
-	ycryst*=normEU
+	ycoh*=normEU
 
 	#Berechnung von Rulands R, Anpassung durch Vonks Funktion
-	RulandR=R(vects,yobs,ycryst)
+	argsR=numpy.where(vects[1:]>lowerbound)
+	RulandR=R(vects,yobs,ycoh)
 	err={}
 	params=lmfit.Parameters()
 	params.add('C0',1,min=1)
@@ -72,7 +72,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incoh
 	params.add('C2',0)
 	def VonkRfitfunc(params):
 		prmR=params.valuesdict()
-		return RulandR[args]-polysecond(vects**2,prmR['C0'],prmR['C1'],prmR['C2'])[args]
+		return RulandR[argsR]-polysecond(vects**2,prmR['C0'],prmR['C1'],prmR['C2'])[argsR]
 	resultR=lmfit.minimize(VonkRfitfunc,params,method='least_squares')
 	prmR=resultR.params.valuesdict()
 	for key in resultR.params:
@@ -87,11 +87,11 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incoh
 		fig,ax1=plt.subplots(figsize=(7.5/2.54,5.3/2.54))
 		ax2=ax1.twinx()
 
-		ax1.plot(vects[args]**2,RulandR[args],'k',linewidth=0.5)
+		ax1.plot(vects[argsR]**2,RulandR[argsR],'k',linewidth=0.5)
 		ax1.plot(numpy.linspace(0,max(vects**2)),polysecond(numpy.linspace(0,max(vects**2)),prmR['C0'],prmR['C1'],prmR['C2']),'k--',linewidth=0.5)
 
 		ax2.plot(vects**2,yobs,'k',linewidth=0.5)
-		ax2.plot(vects**2,ycryst,'k--',linewidth=0.5)
+		ax2.plot(vects**2,ycoh,'k--',linewidth=0.5)
 		ax2.plot(vects**2,fsquared(vects,atoms,energy)*vects**2,'w',linewidth=0.5)
 		ax2.plot(vects**2,fsquared(vects,atoms,energy)*vects**2,'k:',linewidth=0.5)
 

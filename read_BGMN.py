@@ -90,11 +90,11 @@ for i in glob.glob(filenamepattern+'.lst'):
 	else:
 		print('Emission nicht erkannt, falle zurück auf: '+emission)
 
-	twotheta,yobs,yfit,yam=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=(0,1,2,3))
+	twotheta,yobs,yfit,yinc=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=(0,1,2,3))
 	dia=open(filename+'.dia').readlines()
 	for d in numpy.arange(int(dia[0].split('[')[-1].split(']')[0])):
 		if 'amorph' in dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n',''):
-			yam+=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
+			yinc+=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
 
 	f=open(i).readlines()
 	for linenumber,line in enumerate(f):
@@ -218,12 +218,12 @@ for i in glob.glob(filenamepattern+'.lst'):
 			for d in numpy.arange(int(dia[0].split('[')[-1].split(']')[0])):
 				if dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n','')==phasename:
 					col=4+d
-			ycryst=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=col)
-			if numpy.median(ycryst)!=0:
+			ycoh=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=col)
+			if numpy.median(ycoh)!=0:
 				if switch=='homo':
-					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycryst,twotheta,emission,True,lowerbound,incohcor)
+					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycoh,twotheta,emission,True,lowerbound,incohcor)
 				elif switch=='hetero':
-					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yam+ycryst,ycryst,twotheta,emission,True,lowerbound,incohcor)
+					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yinc+ycoh,ycoh,twotheta,emission,True,lowerbound,incohcor)
 					print('Warnung: fc ist kristalliner Anteil an homogener Portion.')
 				else:
 					print('Eingabe hetero / homo nicht verstanden, fc wird auf 0 gesetzt.')
