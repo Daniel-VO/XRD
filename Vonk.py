@@ -60,9 +60,9 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incoh
 		J=uq(0,pq.dimensionless,0)
 
 	#Normierung auf elektronische Einheiten eA^-2
-	normfakt=numpy.median((fsquared(vects,atoms,energy)*vects**2/yobs)[numpy.where(twotheta_deg>max(twotheta_deg)-2)])
-	yobs*=normfakt
-	ycryst*=normfakt
+	normEU=numpy.trapz(fsquared(vects,atoms,energy)*vects**2,x=vects)/numpy.trapz(yobs,x=vects)
+	yobs*=normEU
+	ycryst*=normEU
 
 	#Berechnung von Rulands R, Anpassung durch Vonks Funktion
 	RulandR=R(vects,yobs,ycryst)
