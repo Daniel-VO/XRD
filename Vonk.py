@@ -39,7 +39,6 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incoh
 		if isinstance(value,str):
 			atoms[i]=xu.materials.atom.Atom(value[0]+value[1:].lower(),1)
 
-	err={}
 	args=numpy.where(vects[1:]>lowerbound)
 
 	#Berechnung der inkohaerenten Streuung J, Korrektur von yobs
@@ -66,6 +65,7 @@ def Vonk(filename,atoms,yobs,ycryst,twotheta_deg,emission,plots,lowerbound,incoh
 
 	#Berechnung von Rulands R, Anpassung durch Vonks Funktion
 	RulandR=R(vects,yobs,ycryst)
+	err={}
 	params=lmfit.Parameters()
 	params.add('C0',1,min=1)
 	params.add('C1',0,min=0)
