@@ -56,7 +56,7 @@ for i in files:
 	params.add('Cyh',1)
 	def minfunc(params):
 		prm=params.valuesdict()
-		return (scipy.integrate.cumtrapz(Lfsq*vects**2,x=vects)/numpy.trapz(Lfsq*vects**2,x=vects)-scipy.integrate.cumtrapz((yobs-prm['Cyh']*yh)*vects**2,x=vects)/numpy.trapz((yobs-prm['Cyh']*yh)*vects**2,x=vects))
+		return scipy.integrate.cumtrapz(Lfsq*vects**2,x=vects)/numpy.trapz(Lfsq*vects**2,x=vects)-scipy.integrate.cumtrapz((yobs-prm['Cyh']*yh)*vects**2,x=vects)/numpy.trapz((yobs-prm['Cyh']*yh)*vects**2,x=vects)
 	result=lmfit.minimize(minfunc,params)
 	prm=result.params.valuesdict()
 	yobs-=prm['Cyh']*yh
