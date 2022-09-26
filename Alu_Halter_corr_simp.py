@@ -9,12 +9,7 @@ import sys
 import glob
 import numpy
 import scipy
-import lmfit
 import matplotlib.pyplot as plt
-import xrayutilities as xu
-
-def fsquared(vects,atoms,energy):												#Atomare Streufaktoren
-	return numpy.real(numpy.average(numpy.array([i.f(2*numpy.pi*vects,en=energy) for i in atoms])**2,axis=0))
 
 if len(sys.argv)>1:
 	filepattern=sys.argv[1]
@@ -42,28 +37,16 @@ for i in files:
 	step,argscut=numpy.gradient(twotheta_deg)[0],[]
 	for i,valuei in enumerate(yh):
 		if twotheta_deg[i]>min(twotheta_deg)+2 and valuei>min(yh[i-int(2/step):i+int(2/step)])*2:
-			argscut.append(numpy.arange(i-int(1/2/step),i+int(1/2/step)))
+			argscut.append(numpy.arange(i-int(1/step),i+int(1/step)))
+	Cyh=numpy.trapz(yobs[argscut].flatten(),x=twotheta_deg[argscut].flatten())/numpy.trapz(yh[argscut].flatten(),x=twotheta_deg[argscut].flatten())
 	twotheta_deg,yobs,yh=numpy.delete(twotheta_deg,argscut),numpy.delete(yobs,argscut),numpy.delete(yh,argscut)
 
-	yh,emission=scipy.signal.savgol_filter(yh,101,1),'CuKa1'
-	vects=2*numpy.sin(numpy.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
-	Lfsq=	1/(numpy.sin(numpy.radians(twotheta_deg)))*\
-			fsquared(vects,\
-			1*[xu.materials.atom.Atom('C',1)]+\
-			4*[xu.materials.atom.Atom('H',1)],xu.utilities_noconf.energy(emission))
-	params=lmfit.Parameters()
-	params.add('Cyh',1)
-	def minfunc(params):
-		prm=params.valuesdict()
-		return (scipy.integrate.cumtrapz(Lfsq*vects**2,x=vects)/numpy.trapz(Lfsq*vects**2,x=vects)-scipy.integrate.cumtrapz((yobs-prm['Cyh']*yh)*vects**2,x=vects)/numpy.trapz((yobs-prm['Cyh']*yh)*vects**2,x=vects))
-	result=lmfit.minimize(minfunc,params)
-	prm=result.params.valuesdict()
-	yobs-=prm['Cyh']*yh
+	yh=scipy.signal.savgol_filter(yh,101,1)
+	yobs-=Cyh*yh
 
 	plt.plot(twotheta_deg,yobs)
-	plt.plot(twotheta_deg,Lfsq/Lfsq[-1]*yobs[-1])
-	plt.plot(twotheta_deg,prm['Cyh']*yh)
-	plt.text(min(twotheta_deg),min(prm['Cyh']*yh),prm['Cyh'].round(3))
+	plt.plot(twotheta_deg,Cyh*yh)
+	plt.text(min(twotheta_deg),min(Cyh*yh),Cyh.round(3))
 
 	plt.yscale('log')
 	plt.savefig(filename+'_corr.png')

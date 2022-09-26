@@ -8,11 +8,10 @@ import os
 import sys
 import glob
 import numpy
+import scipy
 import lmfit
 import matplotlib.pyplot as plt
 import xrayutilities as xu
-from scipy import interpolate
-from scipy import signal
 
 def fsquared(vects,atoms,energy):												#Atomare Streufaktoren
 	return numpy.real(numpy.average(numpy.array([i.f(2*numpy.pi*vects,en=energy) for i in atoms])**2,axis=0))
@@ -26,7 +25,7 @@ os.system('rm '+os.path.splitext(filepattern)[0]+'*_bgcorr.xy')
 files=list(filter(lambda a:'Halter' not in a,glob.glob(os.path.splitext(filepattern)[0]+'*.xy')))
 
 tt,yh0=numpy.genfromtxt('Si_Halter.xy',unpack=True)
-f=interpolate.interp1d(tt,yh0)
+f=scipy.interpolate.interp1d(tt,yh0)
 
 for i in files:
 	filename=os.path.splitext(i)[0]
@@ -46,16 +45,18 @@ for i in files:
 
 
 
-	yh,emission=signal.savgol_filter(yh,101,1),'CuKa1'
-	Lfsq=	1/(2*numpy.sin(numpy.radians(twotheta_deg/2))*numpy.sin(numpy.radians(twotheta_deg)))*\
-			fsquared(2*numpy.sin(numpy.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission),\
+
+	yh,emission=scipy.signal.savgol_filter(yh,101,1),'CuKa1'
+	vects=2*numpy.sin(numpy.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
+	Lfsq=	1/(numpy.sin(numpy.radians(twotheta_deg)))*\
+			fsquared(vects,\
 			1*[xu.materials.atom.Atom('C',1)]+\
 			4*[xu.materials.atom.Atom('H',1)],xu.utilities_noconf.energy(emission))
 	params=lmfit.Parameters()
 	params.add('Cyh',1)
 	def minfunc(params):
 		prm=params.valuesdict()
-		return (Lfsq/Lfsq[-1]-(yobs-prm['Cyh']*yh)/(yobs-prm['Cyh']*yh)[-1])[numpy.where(twotheta_deg>90)]
+		return (scipy.integrate.cumtrapz(Lfsq*vects**2,x=vects)/numpy.trapz(Lfsq*vects**2,x=vects)-scipy.integrate.cumtrapz((yobs-prm['Cyh']*yh)*vects**2,x=vects)/numpy.trapz((yobs-prm['Cyh']*yh)*vects**2,x=vects))
 	result=lmfit.minimize(minfunc,params)
 	prm=result.params.valuesdict()
 	yobs-=prm['Cyh']*yh
@@ -63,10 +64,9 @@ for i in files:
 	plt.plot(twotheta_deg,yobs)
 	plt.plot(twotheta_deg,Lfsq/Lfsq[-1]*yobs[-1])
 	plt.plot(twotheta_deg,prm['Cyh']*yh)
-	plt.text(min(twotheta_deg),min(prm['Cyh']*yh),prm['Cyh'].round(2))
+	plt.text(min(twotheta_deg),min(prm['Cyh']*yh),prm['Cyh'].round(3))
 
 	plt.yscale('log')
-	plt.ylim([1,None])
 	plt.savefig(filename+'_corr.png')
 
 	numpy.savetxt(filename+'_bgcorr.xy',numpy.transpose([twotheta_deg,abs(yobs)]))
