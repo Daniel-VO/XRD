@@ -1,5 +1,5 @@
 """
-Created 16. September 2022 by Daniel Van Opdenbosch, Technical University of Munich
+Created 11. October 2022 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -70,7 +70,7 @@ TDS100_collect=[]
 TDS010_collect=[]
 TDS001_collect=[]
 Gewicht_collect=[]
-fc_collect=[]
+xc_collect=[]
 k_collect=[]
 J_collect=[]
 
@@ -221,15 +221,15 @@ for i in glob.glob(filenamepattern+'.lst'):
 			ycoh=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=col)
 			if numpy.median(ycoh)!=0:
 				if switch=='homo':
-					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycoh,twotheta,emission,True,lowerbound,incohcor)
+					xc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycoh,twotheta,emission,True,lowerbound,incohcor)
 				elif switch=='hetero':
-					fc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yinc+ycoh,ycoh,twotheta,emission,True,lowerbound,incohcor)
-					print('Warnung: fc ist kristalliner Anteil an homogener Portion.')
+					xc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yinc+ycoh,ycoh,twotheta,emission,True,lowerbound,incohcor)
+					print('Warnung: xc ist kristalliner Anteil an homogener Portion.')
 				else:
-					print('Eingabe hetero / homo nicht verstanden, fc wird auf 0 gesetzt.')
-					fc,k,J=uq(0,pq.dimensionless,0),uq(0,pq.angstrom**2,0),uq(0,pq.dimensionless,0)
+					print('Eingabe hetero / homo nicht verstanden, xc wird auf 0 gesetzt.')
+					xc,k,J=uq(0,pq.dimensionless,0),uq(0,pq.angstrom**2,0),uq(0,pq.dimensionless,0)
 			else:
-				fc,k,J=uq(0,pq.dimensionless,0),uq(0,pq.angstrom**2,0),uq(0,pq.dimensionless,0)
+				xc,k,J=uq(0,pq.dimensionless,0),uq(0,pq.angstrom**2,0),uq(0,pq.dimensionless,0)
 
 			####
 			XrayDensity_collect.append(XrayDensity)
@@ -249,11 +249,11 @@ for i in glob.glob(filenamepattern+'.lst'):
 			TDS010_collect.append(TDS010)
 			TDS001_collect.append(TDS001)
 			Gewicht_collect.append(Gewicht)
-			fc_collect.append(fc)
+			xc_collect.append(xc)
 			k_collect.append(k)
 			J_collect.append(J)
 
-export=[filenamelist,phaselist,XrayDensity_collect,lata_collect,latb_collect,latc_collect,GrainSize100_collect,GrainSize010_collect,GrainSize001_collect,MicroStrain100_collect,MicroStrain010_collect,MicroStrain001_collect,Textur100_collect,Textur010_collect,Textur001_collect,TDS100_collect,TDS010_collect,TDS001_collect,Gewicht_collect,fc_collect,k_collect,J_collect]
+export=[filenamelist,phaselist,XrayDensity_collect,lata_collect,latb_collect,latc_collect,GrainSize100_collect,GrainSize010_collect,GrainSize001_collect,MicroStrain100_collect,MicroStrain010_collect,MicroStrain001_collect,Textur100_collect,Textur010_collect,Textur001_collect,TDS100_collect,TDS010_collect,TDS001_collect,Gewicht_collect,xc_collect,k_collect,J_collect]
 
 # ~ print(export)
 

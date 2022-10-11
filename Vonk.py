@@ -1,5 +1,5 @@
 """
-Created 16. September 2022 by Daniel Van Opdenbosch, Technical University of Munich
+Created 11. October 2022 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -22,8 +22,8 @@ def R(vects,yobs,ycoh):														#Vonk R-Funktion
 def T(vects,atoms,energy,yobs,J):												#Vonk T-Funktion
 	return integrate.cumtrapz(fsquared(vects,atoms,energy)*vects**2,x=vects)/integrate.cumtrapz(yobs-J*vects**2,x=vects)
 
-def Vonkfunc(vects,fc,k):														#Vonk Anpassung an R
-	return 1/fc+(k/(2*fc))/vects**2
+def Vonkfunc(vects,xc,k):														#Vonk Anpassung an R
+	return 1/xc+(k/(2*xc))/vects**2
 
 def polysecond(x,C0,C1,C2):														#Anpassung an R mit Polynom zweiten Grades
 	return C0+C1*x+C2*x**2
@@ -112,7 +112,7 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,plots,lowerbound,incohco
 		plt.savefig(filename+'_Vonk.png',dpi=300)
 		plt.close('all')
 
-	fc=1/uq(prmR['C0'],pq.dimensionless,err['C0'])
-	k=2*fc*uq(prmR['C1'],pq.angstrom**2,err['C1'])
+	xc=1/uq(prmR['C0'],pq.dimensionless,err['C0'])
+	k=2*xc*uq(prmR['C1'],pq.angstrom**2,err['C1'])
 
-	return fc,k,J
+	return xc,k,J
