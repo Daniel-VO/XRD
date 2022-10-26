@@ -3,8 +3,7 @@
 
 cff-version: 1.2.0
 title: >-
-  Python implementation of the method of Ruland and
-  Vonk
+  Python implementation of, and evaluation routines for, the method of Ruland and Vonk
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
