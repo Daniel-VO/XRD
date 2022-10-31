@@ -127,8 +127,8 @@ def calc(ciffile,rpo,sp0,L,xc0,k0):
 	axs[1].tick_params(axis='y',pad=1,labelsize=7)
 	plt.tight_layout(pad=0.1)
 
-	plt.savefig(phasename+'_'+('%.2f'%rpo).replace('.','-')+'_'+('%.1f'%sp0).replace('.','-')+'_'+'%.2i'%(L*1e9)+'_'+('%.2f'%xc0).replace('.','-')+'_'+'%.i'%k0+'.png',dpi=300)
-	plt.savefig(phasename+'_'+('%.2f'%rpo).replace('.','-')+'_'+('%.1f'%sp0).replace('.','-')+'_'+'%.2i'%(L*1e9)+'_'+('%.2f'%xc0).replace('.','-')+'_'+'%.i'%k0+'.pdf',transparent=True)
+	plt.savefig(phasename+'_'+str(rpo.round(2)).replace('.','-')+'_'+str(sp0.round(1)).replace('.','-')+'_'+str(round(L*1e9))+'_'+str(xc0.round(2)).replace('.','-')+'_'+str(int(k0))+'.png',dpi=300)
+	plt.savefig(phasename+'_'+str(rpo.round(2)).replace('.','-')+'_'+str(sp0.round(1)).replace('.','-')+'_'+str(round(L*1e9))+'_'+str(xc0.round(2)).replace('.','-')+'_'+str(int(k0))+'.pdf',transparent=True)
 	plt.close('all')
 
 	return [ciffile,rpo,sp0,L,xc0,k0,xc_collect,k_collect]
