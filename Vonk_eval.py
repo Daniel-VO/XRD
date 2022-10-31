@@ -109,7 +109,7 @@ def calc(ciffile,rpo,sp0,L,xc0,k0):
 		axs[1].plot(vects[1:][argsR]**2,RulandR[argsR],color=colors[i],linewidth=0.5)
 		axs[1].plot(vects**2,polysecond(vects**2,prmR['C0'],prmR['C1'],prmR['C2']),color=colors[i],linewidth=0.5,linestyle='dashed')
 
-		text_collect.append(r'$x_{\rm{c}}^{'+superscripts[i]+'}='+str(xc.magnitude.round(2))+'\pm'+str(float(xc.uncertainty.round(2)))+'\quad k^{'+superscripts[i]+'}='+str(k.magnitude.round(2))+'\pm'+str(float(k.uncertainty.round(2)))+'$')
+		text_collect.append(r'$x_{\rm{c}}^{'+superscripts[i]+'}='+'%.2f'%xc.magnitude+'\quad k^{'+superscripts[i]+'}='+'%.2f'%k.magnitude+'$')
 
 	for j,t in enumerate(text_collect):
 		axs[1].text(0,axs[1].get_ylim()[1]-(axs[1].get_ylim()[1]-axs[1].get_ylim()[0])*(j+1)/10,t,fontsize=6,color=colors[j])
@@ -127,8 +127,8 @@ def calc(ciffile,rpo,sp0,L,xc0,k0):
 	axs[1].tick_params(axis='y',pad=1,labelsize=7)
 	plt.tight_layout(pad=0.1)
 
-	plt.savefig(phasename+'_'+str(rpo.round(2)).replace('.','-')+'_'+str(sp0.round(1)).replace('.','-')+'_'+str(round(L*1e9))+'_'+str(xc0.round(2)).replace('.','-')+'_'+str(int(k0))+'.png',dpi=300)
-	plt.savefig(phasename+'_'+str(rpo.round(2)).replace('.','-')+'_'+str(sp0.round(1)).replace('.','-')+'_'+str(round(L*1e9))+'_'+str(xc0.round(2)).replace('.','-')+'_'+str(int(k0))+'.pdf',transparent=True)
+	plt.savefig(phasename+'_'+('%.2f'%rpo).replace('.','-')+'_'+('%.1f'%sp0).replace('.','-')+'_'+'%.i'%L*1e9+'_'+('%.2f'%xc0).replace('.','-')+'_'+'%.i'%k0+'.png',dpi=300)
+	plt.savefig(phasename+'_'+('%.2f'%rpo).replace('.','-')+'_'+('%.1f'%sp0).replace('.','-')+'_'+'%.i'%L*1e9+'_'+('%.2f'%xc0).replace('.','-')+'_'+'%.i'%k0+'.pdf',transparent=True)
 	plt.close('all')
 
 	return [ciffile,rpo,sp0,L,xc0,k0,xc_collect,k_collect]
@@ -199,7 +199,7 @@ for c,valuec in enumerate(numpy.unique(ciffile)):
 			ax1.scatter(valuei[argsc]+offset,(valuej-xc0)[argsc],marker='s',s=1,edgecolors='none',c=colors[j])
 			tau,p=scipy.stats.kendalltau(valuei[argsc],(valuej-xc0)[argsc])
 
-			text_collect.append(r'$\tau^{'+superscripts[j]+'}='+str(tau.round(2))+'$')#+'\quad p^{'+superscripts[j]+'}='+str(p.round(2))+'$')
+			text_collect.append(r'$\tau^{'+superscripts[j]+'}='+'%.2f'%tau+'$')
 
 		for j,t in enumerate(text_collect):
 			ax1.text(ax1.get_xlim()[0]+(ax1.get_xlim()[1]-ax1.get_xlim()[0])*2/3,ax1.get_ylim()[1]-(ax1.get_ylim()[1]-ax1.get_ylim()[0])*(j+1)/10,t,fontsize=6,color=colors[j])
@@ -233,7 +233,7 @@ for c,valuec in enumerate(numpy.unique(ciffile)):
 			ax1.scatter(valuei[argsc]+offset,(valuej-k0)[argsc],marker='s',s=1,edgecolors='none',c=colors[j])
 			tau,p=scipy.stats.kendalltau(valuei[argsc],(valuej-k0)[argsc])
 
-			text_collect.append(r'$\tau^{'+superscripts[j]+'}='+str(tau.round(2))+'$')#+'\quad p^{'+superscripts[j]+'}='+str(p.round(2))+'$')
+			text_collect.append(r'$\tau^{'+superscripts[j]+'}='+'%.2f'%tau+'$')
 
 		for j,t in enumerate(text_collect):
 			ax1.text(ax1.get_xlim()[0]+(ax1.get_xlim()[1]-ax1.get_xlim()[0])*2/3,ax1.get_ylim()[1]-(ax1.get_ylim()[1]-ax1.get_ylim()[0])*(j+1)/10,t,fontsize=6,color=colors[j])
@@ -352,7 +352,7 @@ for (x,y),value in numpy.ndenumerate(corr):
 		sign='-'
 	else:
 		sign=''
-	plt.text(x,y,sign+r'$'+str(abs(value.round(1)))+'$',va="center",ha="center",fontsize=6)
+	plt.text(x,y,sign+r'$'+'%.1f'%abs(value)+'$',va="center",ha="center",fontsize=6)
 
 cbar.ax.tick_params(labelsize=7)
 ticks=numpy.arange(0,11,1)
