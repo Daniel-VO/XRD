@@ -21,7 +21,7 @@ for i in glob.glob('*.str'):
 	print(i)
 	f=open(i).readlines()
 	for linenumber,line in enumerate(f):
-		if 'PARAM=' in line and 'RP=' not in line and 'amorphous' not in i:
+		if 'PARAM=' in line and 'RP=' not in line and 'amorphous' not in i and 'single' not in i:
 			for j in line.split(' '):
 				print(j)
 				for k in j.split('=')[2:]:
@@ -98,7 +98,7 @@ for i in glob.glob(filenamepattern+'.lst'):
 
 	f=open(i).readlines()
 	for linenumber,line in enumerate(f):
-		if 'Local parameters and GOALs for phase ' in line and 'amorphous' not in line:
+		if 'Local parameters and GOALs for phase ' in line and 'amorphous' not in line and 'single' not in line:
 			filenamelist.append(filename)
 			phasename=line.split('GOALs for phase ')[1].replace('\n','')
 			phaselist.append(phasename)
@@ -198,7 +198,7 @@ for i in glob.glob(filenamepattern+'.lst'):
 			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
 				Gewicht=uq(float(split0[1]),pq.dimensionless,0)
 
-		if 'Atomic positions for phase' in line and 'amorphous' not in line:
+		if 'Atomic positions for phase' in line and 'amorphous' not in line and 'single' not in line :
 			Vol=lata*latb*latc
 			XrayDensity=uq(XrayDensity0,pq.kg/pq.l,float(Vol.uncertainty/Vol.magnitude))
 			####
@@ -217,8 +217,9 @@ for i in glob.glob(filenamepattern+'.lst'):
 					atoms.append(str(a))
 			for d in numpy.arange(int(dia[0].split('[')[-1].split(']')[0])):
 				if dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n','')==phasename:
-					col=4+d
-			ycoh=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=col)
+					ycoh=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
+				if 'single' in dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n',''):
+					ycoh+=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
 			if numpy.median(ycoh)!=0:
 				if switch=='homo':
 					xc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycoh,twotheta,emission,True,lowerbound,incohcor)
