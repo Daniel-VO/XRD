@@ -1,5 +1,5 @@
 """
-Created 11. October 2022 by Daniel Van Opdenbosch, Technical University of Munich
+Created 12. January 2023 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -30,8 +30,9 @@ def polysecond(x,C0,C1,C2):														#Anpassung an R mit Polynom zweiten Gra
 
 def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,plots,lowerbound,incohcor):	#Hauptfunktion Vonk.Vonk()
 	vects=2*numpy.sin(numpy.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
-	yobs*=vects**2
-	ycoh*=vects**2
+	L=numpy.sin(numpy.radians(twotheta_deg/2))*numpy.sin(numpy.radians(twotheta_deg))
+	yobs*=L
+	ycoh*=L
 	energy=xu.utilities_noconf.energy(emission)
 
 	for i,value in enumerate(atoms):
@@ -102,8 +103,7 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,plots,lowerbound,incohco
 		ax1.set_ylabel(r'$R/1$',fontsize=10)
 		ax2.set_ylabel(r'$Is^2/(\rm{e\,\AA}^{-2})$',fontsize=10)
 		ax1.tick_params(direction='out')
-		ax1.tick_params(axis='x',pad=2,labelsize=8)
-		ax1.tick_params(axis='y',pad=2,labelsize=8)
+		ax1.tick_params(axis='both',pad=2,labelsize=8)
 		ax2.tick_params(axis='y',pad=2,labelsize=8)
 		ax1.xaxis.get_offset_text().set_size(8)
 		ax1.yaxis.get_offset_text().set_size(8)
