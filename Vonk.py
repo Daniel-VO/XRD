@@ -95,7 +95,11 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,plots,lowerbound,incohco
 
 		ax1.set_xlim([0,None])
 		ax1.set_ylim([0,None])
-		ax2.set_ylim([0,None])
+		plotlim=2*numpy.median((fsquared(vects,atoms,energy)*vects**2)[-10:])
+		if ax2.get_ylim()[-1]>plotlim:
+			ax2.set_ylim([0,None])
+		else:
+			ax2.set_ylim([0,plotlim])
 
 		ax1.set_xlabel(r'$s_p^2/\rm{\AA}^{-2}$',fontsize=10)
 		ax1.set_ylabel(r'$R/1$',fontsize=10)
