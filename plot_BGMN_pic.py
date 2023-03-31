@@ -1,5 +1,5 @@
 """
-Created 12. January 2023 by Daniel Van Opdenbosch, Technical University of Munich
+Created 19. January 2023 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -24,7 +24,7 @@ names=['XrayDensity_collect','lata_collect','latb_collect','latc_collect','Grain
 
 data=[XrayDensity_collect,lata_collect,latb_collect,latc_collect,GrainSize100_collect,GrainSize010_collect,GrainSize001_collect,MicroStrain100_collect,MicroStrain010_collect,MicroStrain001_collect,Textur100_collect,Textur010_collect,Textur001_collect,TDS100_collect,TDS010_collect,TDS001_collect,Gewicht_collect,xc_collect,k_collect,J_collect]
 
-plt.clf()
+plt.close('all')
 fig,ax1=plt.subplots()
 dataframe=pandas.DataFrame(numpy.transpose(data),columns=names)
 corr=dataframe.corr()
@@ -44,10 +44,10 @@ phases=[]
 for p,valuep in enumerate(phaselist):
 	phases.append(filenamelist[p]+':'+valuep)
 
-argsort=numpy.argsort(filenamelist)
+argsort=numpy.argsort(phases)
 
 for i,valuei in enumerate(data):
-	plt.clf()
+	plt.close('all')
 	yerr=numpy.array([])
 	for j in valuei:
 		if '+/-' in str(j) and j.uncertainty<j.magnitude:

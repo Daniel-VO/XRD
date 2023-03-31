@@ -79,7 +79,7 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,plots,lowerbound,incohco
 
 	#Abbildungen
 	if plots==True:
-		plt.clf()
+		plt.close('all')
 		mpl.rc('text',usetex=True)
 		mpl.rc('text.latex',preamble=r'\usepackage[helvet]{sfmath}')
 		fig,ax1=plt.subplots(figsize=(7.5/2.54,5.3/2.54))
@@ -112,7 +112,6 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,plots,lowerbound,incohco
 		ax2.yaxis.get_offset_text().set_size(8)
 		plt.tight_layout(pad=0.1)
 		plt.savefig(filename+'_Vonk.png',dpi=300)
-		plt.close('all')
 
 	xc=1/uq(prmR['C0'],pq.dimensionless,err['C0'])
 	k=2*xc*uq(prmR['C1'],pq.angstrom**2,err['C1'])

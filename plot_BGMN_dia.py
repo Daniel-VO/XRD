@@ -19,7 +19,7 @@ for i in glob.glob('*.dia'):
 		if 'STRUC' in j:
 			columns.append(j.split('=')[1].split('\n')[0])
 
-	plt.clf()
+	plt.close('all')
 	mpl.rc('text',usetex=True)
 	mpl.rc('text.latex',preamble=r'\usepackage[helvet]{sfmath}')
 	fig,ax1=plt.subplots(figsize=(7.5/2.54,5.3/2.54))
@@ -52,4 +52,3 @@ for i in glob.glob('*.dia'):
 	plt.tight_layout(pad=0.1)
 	plt.savefig(filename+'.pdf',transparent=True)
 	plt.savefig(filename+'.png',dpi=300)
-	plt.close('all')

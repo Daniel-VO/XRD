@@ -78,7 +78,7 @@ for i in glob.glob(filenamepattern+'.lst'):
 	filename=os.path.splitext(i)[0]
 	print(filename)
 
-	plt.clf()
+	plt.close('all')
 	mpl.rc('text',usetex=True)
 	mpl.rc('text.latex',preamble=r'\usepackage[helvet]{sfmath}')
 	fig,ax1=plt.subplots(figsize=(7.5/2.54,5.3/2.54))
