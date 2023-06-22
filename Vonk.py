@@ -1,11 +1,11 @@
 """
-Created 20. February 2023 by Daniel Van Opdenbosch, Technical University of Munich
+Created 22. June 2023 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
 
-import numpy
-import lmfit
+import numpy as np
+import lmfit as lm
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import xrayutilities as xu
@@ -14,7 +14,7 @@ from quantities import UncertainQuantity as uq
 from scipy import integrate
 
 def fsquared(vects,atoms,energy):												#Atomare Streufaktoren
-	return numpy.real(numpy.average(numpy.array([i.f(2*numpy.pi*vects,en=energy) for i in atoms])**2,axis=0))
+	return np.real(np.average(np.array([i.f(2*np.pi*vects,en=energy) for i in atoms])**2,axis=0))
 
 def R(vects,yobs,ycoh):														#Vonk R-Funktion
 	return integrate.cumtrapz(yobs,x=vects)/integrate.cumtrapz(ycoh,x=vects)
@@ -29,8 +29,8 @@ def polysecond(x,C0,C1,C2):														#Anpassung an R mit Polynom zweiten Gra
 	return C0+C1*x+C2*x**2
 
 def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,plots,lowerbound,incohcor):	#Hauptfunktion Vonk.Vonk()
-	vects=2*numpy.sin(numpy.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
-	P=1+numpy.cos(numpy.radians(twotheta_deg))**2
+	vects=2*np.sin(np.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
+	P=1+np.cos(np.radians(twotheta_deg))**2
 	yobs*=vects**2/P;ycoh*=vects**2/P
 	energy=xu.utilities_noconf.energy(emission)
 
@@ -39,14 +39,14 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,plots,lowerbound,incohco
 			atoms[i]=xu.materials.atom.Atom(value[0]+value[1:].lower(),1)
 
 	#Berechnung der inkohaerenten Streuung J, Korrektur von yobs
-	argsJ=numpy.where(vects[1:]>0.6)
+	argsJ=np.where(vects[1:]>0.6)
 	if incohcor==True:
-		params=lmfit.Parameters()
+		params=lm.Parameters()
 		params.add('J',1,min=0)
 		def VonkTfitfunc(params):
 			prmT=params.valuesdict()
 			return T(vects,atoms,energy,yobs,prmT['J'])[argsJ]-T(vects,atoms,energy,yobs,prmT['J'])[argsJ][-1]
-		resultT=lmfit.minimize(VonkTfitfunc,params,method='least_squares')
+		resultT=lm.minimize(VonkTfitfunc,params,method='least_squares')
 		prmT=resultT.params.valuesdict()
 		for key in resultT.params:
 			err[key]=resultT.params[key].stderr
@@ -57,21 +57,21 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,plots,lowerbound,incohco
 		J=uq(0,pq.dimensionless,0)
 
 	#Normierung auf elektronische Einheiten eA^-2
-	normEU=numpy.median((fsquared(vects,atoms,energy)*vects**2)[-10:])/numpy.median(yobs[-10:])
+	normEU=np.median((fsquared(vects,atoms,energy)*vects**2)[-10:])/np.median(yobs[-10:])
 	yobs*=normEU;ycoh*=normEU
 
 	#Berechnung von Rulands R, Anpassung durch Vonks Funktion
-	argsR=numpy.where(vects[1:]>lowerbound)
+	argsR=np.where(vects[1:]>lowerbound)
 	RulandR=R(vects,yobs,ycoh)
 	err={}
-	params=lmfit.Parameters()
+	params=lm.Parameters()
 	params.add('C0',1,min=1)
 	params.add('C1',0,min=0)
 	params.add('C2',0)
 	def VonkRfitfunc(params):
 		prmR=params.valuesdict()
 		return RulandR[argsR]-polysecond(vects**2,prmR['C0'],prmR['C1'],prmR['C2'])[argsR]
-	resultR=lmfit.minimize(VonkRfitfunc,params,method='least_squares')
+	resultR=lm.minimize(VonkRfitfunc,params,method='least_squares')
 	prmR=resultR.params.valuesdict()
 	for key in resultR.params:
 		err[key]=resultR.params[key].stderr
@@ -86,7 +86,7 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,plots,lowerbound,incohco
 		ax2=ax1.twinx()
 
 		ax1.plot(vects[argsR]**2,RulandR[argsR],'k',linewidth=0.5)
-		ax1.plot(numpy.linspace(0,max(vects**2)),polysecond(numpy.linspace(0,max(vects**2)),prmR['C0'],prmR['C1'],prmR['C2']),'k--',linewidth=0.5)
+		ax1.plot(np.linspace(0,max(vects**2)),polysecond(np.linspace(0,max(vects**2)),prmR['C0'],prmR['C1'],prmR['C2']),'k--',linewidth=0.5)
 
 		ax2.plot(vects**2,yobs,'k',linewidth=0.5)
 		ax2.plot(vects**2,ycoh,'k--',linewidth=0.5)
@@ -95,7 +95,7 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,plots,lowerbound,incohco
 
 		ax1.set_xlim([0,None])
 		ax1.set_ylim([0,None])
-		plotlim=2*numpy.median((fsquared(vects,atoms,energy)*vects**2)[-10:])
+		plotlim=2*np.median((fsquared(vects,atoms,energy)*vects**2)[-10:])
 		if ax2.get_ylim()[-1]>plotlim:
 			ax2.set_ylim([0,None])
 		else:

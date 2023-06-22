@@ -1,10 +1,10 @@
 """
-Created 20. February 2023 by Daniel Van Opdenbosch, Technical University of Munich
+Created 22. June 2023 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
 
-import numpy
+import numpy as np
 import os
 import sys
 import glob
@@ -21,7 +21,7 @@ for i in glob.glob('*.str'):
 	print(i)
 	f=open(i).readlines()
 	for linenumber,line in enumerate(f):
-		if 'PARAM=' in line and 'RP=' not in line and 'amorphous' not in i and 'single' not in i:
+		if 'PARAM=' in line and 'RP=' not in line and 'amorphous' and 'single' not in i:
 			for j in line.split(' '):
 				print(j)
 				for k in j.split('=')[2:]:
@@ -90,15 +90,15 @@ for i in glob.glob(filenamepattern+'.lst'):
 	else:
 		print('Emission nicht erkannt, falle zurück auf: '+emission)
 
-	twotheta,yobs,yfit,yinc=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=(0,1,2,3))
+	twotheta,yobs,yfit,yinc=np.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=(0,1,2,3))
 	dia=open(filename+'.dia').readlines()
-	for d in numpy.arange(int(dia[0].split('[')[-1].split(']')[0])):
-		if 'amorph' in dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n',''):
-			yinc+=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
+	for d in np.arange(int(dia[0].split('[')[-1].split(']')[0])):
+		if 'amorph' or 'single' in dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n',''):
+			yinc+=np.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
 
 	f=open(i).readlines()
 	for linenumber,line in enumerate(f):
-		if 'Local parameters and GOALs for phase ' in line and 'amorphous' not in line and 'single' not in line:
+		if 'Local parameters and GOALs for phase ' in line and 'amorphous' and 'single' not in line:
 			filenamelist.append(filename)
 			phasename=line.split('GOALs for phase ')[1].replace('\n','')
 			phaselist.append(phasename)
@@ -198,7 +198,7 @@ for i in glob.glob(filenamepattern+'.lst'):
 			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
 				Gewicht=uq(float(split0[1]),pq.dimensionless,0)
 
-		if 'Atomic positions for phase' in line and 'amorphous' not in line and 'single' not in line :
+		if 'Atomic positions for phase' in line and 'amorphous' and 'single' not in line :
 			Vol=lata*latb*latc
 			XrayDensity=uq(XrayDensity0,pq.kg/pq.l,float(Vol.uncertainty/Vol.magnitude))
 			####
@@ -210,17 +210,17 @@ for i in glob.glob(filenamepattern+'.lst'):
 				if 'Local parameters and GOALs for phase' in line1:
 					break
 			atoms=[]
-			atoms_collect,occups_collect=numpy.array(atoms_collect),numpy.array(occups_collect)
-			for a in numpy.unique(atoms_collect):
-				numbers=int(round(numpy.sum(occups_collect[numpy.where(atoms_collect==a)]),0))
-				for j in numpy.arange(numbers):
+			atoms_collect,occups_collect=np.array(atoms_collect),np.array(occups_collect)
+			for a in np.unique(atoms_collect):
+				numbers=int(round(np.sum(occups_collect[np.where(atoms_collect==a)]),0))
+				for j in np.arange(numbers):
 					atoms.append(str(a))
-			for d in numpy.arange(int(dia[0].split('[')[-1].split(']')[0])):
+			for d in np.arange(int(dia[0].split('[')[-1].split(']')[0])):
 				if dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n','')==phasename:
-					ycoh=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
+					ycoh=np.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
 				if 'single' in dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n',''):
-					ycoh+=numpy.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
-			if numpy.median(ycoh)!=0:
+					ycoh+=np.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
+			if np.median(ycoh)!=0:
 				if switch=='homo':
 					xc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycoh,twotheta,emission,True,lowerbound,incohcor)
 				elif switch=='hetero':
