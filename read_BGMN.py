@@ -93,8 +93,7 @@ for i in glob.glob(filenamepattern+'.lst'):
 	twotheta,yobs,yfit,yinc=np.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=(0,1,2,3))
 	dia=open(filename+'.dia').readlines()
 	for d in np.arange(int(dia[0].split('[')[-1].split(']')[0])):
-		if 'amorph' in dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n','') or\
-		   'single' in dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n',''):
+		if 'amorph' in dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n',''):
 			yinc+=np.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
 
 	f=open(i).readlines()
