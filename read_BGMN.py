@@ -1,5 +1,5 @@
 """
-Created 22. June 2023 by Daniel Van Opdenbosch, Technical University of Munich
+Created 13. November 2023 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -111,7 +111,6 @@ for i in glob.glob(filenamepattern+'.lst'):
 			GrainSize100=GrainSize010=GrainSize001=uq(0,unitoflength,0)
 			MicroStrain100=MicroStrain010=MicroStrain001=uq(0,pq.CompoundUnit('m/m'),0)
 			Textur100=Textur010=Textur001=Gewicht=uq(1,pq.dimensionless,0)
-		####
 		if split0[0]=='XrayDensity':
 			XrayDensity0=float(split0[1])
 		if split0[0]=='A':
@@ -201,7 +200,6 @@ for i in glob.glob(filenamepattern+'.lst'):
 		if 'Atomic positions for phase' in line and 'amorphous' not in line and 'single' not in line:
 			Vol=lata*latb*latc
 			XrayDensity=uq(XrayDensity0,pq.kg/pq.l,float(Vol.uncertainty/Vol.magnitude))
-			####
 			atoms_collect,occups_collect=[],[]
 			for linenumber1,line1 in enumerate(f[linenumber:]):
 				if 'E=' in line1:
@@ -232,7 +230,6 @@ for i in glob.glob(filenamepattern+'.lst'):
 			else:
 				xc,k,J=uq(0,pq.dimensionless,0),uq(0,pq.angstrom**2,0),uq(0,pq.dimensionless,0)
 
-			####
 			XrayDensity_collect.append(XrayDensity)
 			lata_collect.append(lata)
 			latb_collect.append(latb)
