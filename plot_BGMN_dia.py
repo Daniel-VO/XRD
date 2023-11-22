@@ -1,5 +1,5 @@
 """
-Created 14.November 2023 by Daniel Van Opdenbosch, Technical University of Munich
+Created 22.November 2023 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -22,7 +22,7 @@ for i in glob.glob('*.dia'):
 	plt.close('all')
 	mpl.rc('text',usetex=True)
 	mpl.rc('text.latex',preamble=r'\usepackage[helvet]{sfmath}')
-	plt.subplots(figsize=(7.5/2.54,5.3/2.54))
+	plt.figure(figsize=(7.5/2.54,5.3/2.54))
 
 	linestyles=['k--','k-.','k:']
 	for k,name in enumerate(columns):
@@ -47,5 +47,5 @@ for i in glob.glob('*.dia'):
 	plt.ylabel(r'$I/1$',fontsize=10)
 	plt.tick_params(axis='both',pad=2,labelsize=8)
 	plt.tight_layout(pad=0.1)
-	plt.savefig(filename+'.pdf',transparent=True)
+	plt.savefig(filename+'.pdf')
 	plt.savefig(filename+'.png',dpi=300)
