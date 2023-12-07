@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import quantities as pq
 from quantities import UncertainQuantity as uq
 from scipy import integrate
-import Vonk
+import BGMN_Vonk
 
 for i in glob.glob('*.str'):
 	print('Kontrolle Grenzen Gitterparameter:')
@@ -215,9 +215,9 @@ for i in glob.glob(filenamepattern+'.lst'):
 					ycoh+=np.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
 			if np.median(ycoh)!=0:
 				if switch=='homo':
-					xc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycoh,twotheta,emission,True,lowerbound,incohcor)
+					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycoh,twotheta,emission,True,lowerbound,incohcor)
 				elif switch=='hetero':
-					xc,k,J=Vonk.Vonk(filename+'_'+phasename,atoms,yinc+ycoh,ycoh,twotheta,emission,True,lowerbound,incohcor)
+					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yinc+ycoh,ycoh,twotheta,emission,True,lowerbound,incohcor)
 					print('Warnung: xc ist kristalliner Anteil an homogener Portion.')
 				else:
 					print('Eingabe hetero / homo nicht verstanden, xc wird auf 0 gesetzt.')
