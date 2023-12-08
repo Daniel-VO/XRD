@@ -13,7 +13,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import quantities as pq
 from quantities import UncertainQuantity as uq
-from scipy import integrate
 import BGMN_Vonk
 
 for i in glob.glob('*.str'):
