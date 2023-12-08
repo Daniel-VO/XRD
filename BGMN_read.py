@@ -1,5 +1,5 @@
 """
-Created 07.December 2023 by Daniel Van Opdenbosch, Technical University of Munich
+Created 08.December 2023 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -13,7 +13,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import quantities as pq
 from quantities import UncertainQuantity as uq
-from scipy import integrate
 import BGMN_Vonk
 
 for i in glob.glob('*.str'):
