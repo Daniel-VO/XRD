@@ -1,5 +1,5 @@
 """
-Created 08. December 2023 by Daniel Van Opdenbosch, Technical University of Munich
+Created 21. December 2023 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -15,12 +15,12 @@ import quantities as pq
 from quantities import UncertainQuantity as uq
 import BGMN_Vonk
 
-for i in glob.glob('*.str'):
+for f in glob.glob('*.str'):
 	print('Kontrolle Grenzen Gitterparameter:')
-	print(i)
-	f=open(i).readlines()
-	for linenumber,line in enumerate(f):
-		if 'PARAM=' in line and 'RP=' not in line and 'amorphous' not in i and 'single' not in i:
+	print(f)
+	l=open(f).readlines()
+	for linenumber,line in enumerate(l):
+		if 'PARAM=' in line and 'RP=' not in line and 'amorphous' not in f and 'single' not in f:
 			for j in line.split(' '):
 				print(j)
 				for k in j.split('=')[2:]:
@@ -73,8 +73,8 @@ xc_collect=[]
 k_collect=[]
 J_collect=[]
 
-for i in glob.glob(filenamepattern+'.lst'):
-	filename=os.path.splitext(i)[0]
+for f in glob.glob(filenamepattern+'.lst'):
+	filename=os.path.splitext(f)[0]
 	print(filename)
 
 	emission='CuKa1'
@@ -90,8 +90,8 @@ for i in glob.glob(filenamepattern+'.lst'):
 		if 'amorph' in dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n',''):
 			yinc+=np.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
 
-	f=open(i).readlines()
-	for linenumber,line in enumerate(f):
+	l=open(f).readlines()
+	for linenumber,line in enumerate(l):
 		if 'Local parameters and GOALs for phase ' in line and 'amorphous' not in line and 'single' not in line:
 			filenamelist.append(filename)
 			phasename=line.split('GOALs for phase ')[1].replace('\n','')
@@ -195,7 +195,7 @@ for i in glob.glob(filenamepattern+'.lst'):
 			Vol=lata*latb*latc
 			XrayDensity=uq(XrayDensity0,pq.kg/pq.l,float(Vol.uncertainty/Vol.magnitude))
 			atoms_collect,occups_collect=[],[]
-			for linenumber1,line1 in enumerate(f[linenumber:]):
+			for linenumber1,line1 in enumerate(l[linenumber:]):
 				if 'E=' in line1:
 					atoms_collect.append(line1.split('=(')[1].split('(')[0].split('+')[0].split('-')[0])
 					occups_collect.append(float(line1.split('=(')[1].split('(')[1].split(')')[0]))
@@ -268,9 +268,9 @@ print('____')
 print("Zum Laden der Liste: pickle.load(open(filenamepattern+'.pic','rb')")
 
 sys.stdout=open(filenamepattern.replace('*','alle')+'.txt','w')
-for i,valuei in enumerate(filenamelist):
-	printline=str(filenamelist[i])+'; '+str(phaselist[i])
+for f,valuei in enumerate(filenamelist):
+	printline=str(filenamelist[f])+'; '+str(phaselist[f])
 	for j,valuej in enumerate(export):
 		if j>1 and valuej!=[]:
-			printline+='; '+namestr(export[j],locals())+': '+str(float(valuej[i].magnitude))+' +/- '+str(valuej[i].uncertainty)
+			printline+='; '+namestr(export[j],locals())+': '+str(float(valuej[f].magnitude))+' +/- '+str(valuej[f].uncertainty)
 	print(printline)
