@@ -1,5 +1,5 @@
 """
-Created 21. December 2023 by Daniel Van Opdenbosch, Technical University of Munich
+Created 16. Januar 2024 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -30,8 +30,8 @@ for f in glob.glob('*.str'):
 					else:
 						print('Grenze Gitterparameter nicht gesetzt - bitte pruefen!')
 
-if len(sys.argv)==5:
-	filenamepattern,switch,lowerbound,incohcor=sys.argv[1],sys.argv[2],float(sys.argv[3]),eval(sys.argv[4])
+if len(sys.argv)==4:
+	filenamepattern,switch,incohcor=sys.argv[1],sys.argv[2],eval(sys.argv[3])
 else:
 	filenamepattern=input('Muster Dateinamen [*]: ')
 	if filenamepattern=='':
@@ -39,11 +39,6 @@ else:
 	switch=input('hetero oder homo [homo]? ')
 	if switch=='':
 		switch='homo'
-	lowerbound=input('Untere Integrationsgrenze in A^-1 [0.6]: ')
-	if lowerbound=='':
-		lowerbound=0.6
-	else:
-		lowerbound=float(lowerbound)
 	incohcor=input('Korrektur fuer inkohaerente Streuung [False]? ')
 	if incohcor=='':
 		incohcor=False
@@ -214,9 +209,9 @@ for f in glob.glob(filenamepattern+'.lst'):
 					ycoh+=np.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
 			if np.median(ycoh)!=0:
 				if switch=='homo':
-					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycoh,twotheta,emission,True,lowerbound,incohcor)
+					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycoh,twotheta,emission,True,incohcor)
 				elif switch=='hetero':
-					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yinc+ycoh,ycoh,twotheta,emission,True,lowerbound,incohcor)
+					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yinc+ycoh,ycoh,twotheta,emission,True,incohcor)
 					print('Warnung: xc ist kristalliner Anteil an homogener Portion.')
 				else:
 					print('Eingabe hetero / homo nicht verstanden, xc wird auf 0 gesetzt.')
