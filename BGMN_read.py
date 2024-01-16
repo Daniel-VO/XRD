@@ -209,9 +209,9 @@ for f in glob.glob(filenamepattern+'.lst'):
 					ycoh+=np.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
 			if np.median(ycoh)!=0:
 				if switch=='homo':
-					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycoh,twotheta,emission,True,incohcor)
+					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycoh,twotheta,emission,incohcor)
 				elif switch=='hetero':
-					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yinc+ycoh,ycoh,twotheta,emission,True,incohcor)
+					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yinc+ycoh,ycoh,twotheta,emission,incohcor)
 					print('Warnung: xc ist kristalliner Anteil an homogener Portion.')
 				else:
 					print('Eingabe hetero / homo nicht verstanden, xc wird auf 0 gesetzt.')

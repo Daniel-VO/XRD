@@ -28,7 +28,7 @@ def Vonkfunc(vects,xc,k):														#Vonk Anpassung an R
 def polysecond(x,C0,C1,C2):														#Anpassung an R mit Polynom zweiten Grades
 	return C0+C1*x+C2*x**2
 
-def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,plots,incohcor):	#Hauptfunktion Vonk.Vonk()
+def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,incohcor):	#Hauptfunktion Vonk.Vonk()
 	vects=2*np.sin(np.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
 	P=1+np.cos(np.radians(twotheta_deg))**2
 	lowerbound=vects[np.where(ycoh>max(ycoh)/2)][-1]
@@ -79,39 +79,38 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,plots,incohcor):	#Hauptf
 	# ~ resultR.params.pretty_print()
 
 	#Abbildungen
-	if plots==True:
-		plt.close('all')
-		mpl.rc('text',usetex=True)
-		mpl.rc('text.latex',preamble=r'\usepackage[helvet]{sfmath}')
-		fig,ax1=plt.subplots(figsize=(7.5/2.54,5.3/2.54))
-		ax2=ax1.twinx()
+	plt.close('all')
+	mpl.rc('text',usetex=True)
+	mpl.rc('text.latex',preamble=r'\usepackage[helvet]{sfmath}')
+	fig,ax1=plt.subplots(figsize=(7.5/2.54,5.3/2.54))
+	ax2=ax1.twinx()
 
-		ax1.plot(vects[argsR]**2,RulandR[argsR],'k',linewidth=0.5)
-		ax1.plot(np.linspace(0,max(vects**2)),polysecond(np.linspace(0,max(vects**2)),prmR['C0'],prmR['C1'],prmR['C2']),'k--',linewidth=0.5)
+	ax1.plot(vects[argsR]**2,RulandR[argsR],'k',linewidth=0.5)
+	ax1.plot(np.linspace(0,max(vects**2)),polysecond(np.linspace(0,max(vects**2)),prmR['C0'],prmR['C1'],prmR['C2']),'k--',linewidth=0.5)
 
-		ax2.plot(vects**2,yobs,'k',linewidth=0.5)
-		ax2.plot(vects**2,ycoh,'k--',linewidth=0.5)
-		ax2.plot(vects**2,fsquared(vects,atoms,energy)*vects**2,'w',linewidth=0.5)
-		ax2.plot(vects**2,fsquared(vects,atoms,energy)*vects**2,'k:',linewidth=0.5)
+	ax2.plot(vects**2,yobs,'k',linewidth=0.5)
+	ax2.plot(vects**2,ycoh,'k--',linewidth=0.5)
+	ax2.plot(vects**2,fsquared(vects,atoms,energy)*vects**2,'w',linewidth=0.5)
+	ax2.plot(vects**2,fsquared(vects,atoms,energy)*vects**2,'k:',linewidth=0.5)
 
-		ax1.set_xlim([0,None])
-		ax1.set_ylim([0,None])
-		plotlim=2*np.median((fsquared(vects,atoms,energy)*vects**2)[-10:])
-		if ax2.get_ylim()[-1]>plotlim:
-			ax2.set_ylim([0,None])
-		else:
-			ax2.set_ylim([0,plotlim])
+	ax1.set_xlim([0,None])
+	ax1.set_ylim([0,None])
+	plotlim=2*np.median((fsquared(vects,atoms,energy)*vects**2)[-10:])
+	if ax2.get_ylim()[-1]>plotlim:
+		ax2.set_ylim([0,None])
+	else:
+		ax2.set_ylim([0,plotlim])
 
-		ax1.set_xlabel(r'$s_p^2/\rm{\AA}^{-2}$',fontsize=10)
-		ax1.set_ylabel(r'$R/1$',fontsize=10)
-		ax2.set_ylabel(r'$Is^2/(\rm{e\,\AA}^{-2})$',fontsize=10)
-		ax1.tick_params(axis='both',pad=2,labelsize=8)
-		ax2.tick_params(axis='y',pad=2,labelsize=8)
-		ax1.xaxis.get_offset_text().set_size(8)
-		ax1.yaxis.get_offset_text().set_size(8)
-		ax2.yaxis.get_offset_text().set_size(8)
-		plt.tight_layout(pad=0.1)
-		plt.savefig(filename+'_Vonk.png',dpi=300)
+	ax1.set_xlabel(r'$s_p^2/\rm{\AA}^{-2}$',fontsize=10)
+	ax1.set_ylabel(r'$R/1$',fontsize=10)
+	ax2.set_ylabel(r'$Is^2/(\rm{e\,\AA}^{-2})$',fontsize=10)
+	ax1.tick_params(axis='both',pad=2,labelsize=8)
+	ax2.tick_params(axis='y',pad=2,labelsize=8)
+	ax1.xaxis.get_offset_text().set_size(8)
+	ax1.yaxis.get_offset_text().set_size(8)
+	ax2.yaxis.get_offset_text().set_size(8)
+	plt.tight_layout(pad=0.1)
+	plt.savefig(filename+'_Vonk.png',dpi=300)
 
 	xc=1/uq(prmR['C0'],pq.dimensionless,err['C0'])
 	k=2*xc*uq(prmR['C1'],pq.angstrom**2,err['C1'])
