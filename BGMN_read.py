@@ -31,11 +31,8 @@ for f in glob.glob('*.str'):
 						print('Grenze Gitterparameter nicht gesetzt - bitte pruefen!')
 
 if len(sys.argv)==4:
-	filenamepattern,switch,incohcor=sys.argv[1],sys.argv[2],eval(sys.argv[3])
+	switch,incohcor=sys.argv[1],sys.argv[2],eval(sys.argv[3])
 else:
-	filenamepattern=input('Muster Dateinamen [*]: ')
-	if filenamepattern=='':
-		filenamepattern='*'
 	switch=input('hetero oder homo [homo]? ')
 	if switch=='':
 		switch='homo'
@@ -68,7 +65,7 @@ xc_collect=[]
 k_collect=[]
 J_collect=[]
 
-for f in glob.glob(filenamepattern+'.lst'):
+for f in glob.glob('*.lst'):
 	filename=os.path.splitext(f)[0]
 	print(filename)
 
@@ -252,17 +249,17 @@ for j,value in enumerate(export):
 		exportstring+=','
 	exportstring+=namestr(export[j],locals())
 
-os.system('mv '+filenamepattern.replace('*','alle')+'.pic '+filenamepattern.replace('*','alle')+'_alt.pic')
-os.system('mv '+filenamepattern.replace('*','alle')+'.txt '+filenamepattern.replace('*','alle')+'_alt.txt')
+os.system('mv '+'results.pic '+'alle_alt.pic')
+os.system('mv '+'results.txt '+'alle_alt.txt')
 
-pickle.dump(export,open(filenamepattern.replace('*','alle')+'.pic','wb'))
+pickle.dump(export,open('results.pic','wb'))
 
 print('____')
 print('Ausgegeben als Liste von Python quantities.UncertainQuantity: ['+exportstring+']')
 print('____')
-print("Zum Laden der Liste: pickle.load(open(filenamepattern+'.pic','rb')")
+print("Zum Laden der Liste: pickle.load(open('results.pic','rb')")
 
-sys.stdout=open(filenamepattern.replace('*','alle')+'.txt','w')
+sys.stdout=open('results.txt','w')
 for f,valuei in enumerate(filenamelist):
 	printline=str(filenamelist[f])+'; '+str(phaselist[f])
 	for j,valuej in enumerate(export):
