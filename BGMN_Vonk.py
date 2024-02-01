@@ -1,5 +1,5 @@
 """
-Created 16. Januar 2024 by Daniel Van Opdenbosch, Technical University of Munich
+Created 01. Februar 2024 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -31,7 +31,7 @@ def polysecond(x,C0,C1,C2):														#Anpassung an R mit Polynom zweiten Gra
 def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,incohcor):	#Hauptfunktion Vonk.Vonk()
 	vects=2*np.sin(np.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
 	P=1+np.cos(np.radians(twotheta_deg))**2
-	lowerbound=vects[np.where(ycoh>max(ycoh)/2)][-1]
+	lowerbound=vects[np.where(ycoh==max(ycoh))][0]+0.1
 	yobs*=vects**2/P;ycoh*=vects**2/P
 	energy=xu.utilities_noconf.energy(emission)
 
