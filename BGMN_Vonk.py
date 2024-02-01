@@ -31,7 +31,7 @@ def polysecond(x,C0,C1,C2):														#Anpassung an R mit Polynom zweiten Gra
 def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,incohcor):	#Hauptfunktion Vonk.Vonk()
 	vects=2*np.sin(np.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
 	P=1+np.cos(np.radians(twotheta_deg))**2
-	lowerbound=vects[np.argmax(ycoh)]+0.1
+	lowerbound=2*vects[np.argmax(ycoh)]
 	yobs*=vects**2/P;ycoh*=vects**2/P
 	energy=xu.utilities_noconf.energy(emission)
 
