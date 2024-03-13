@@ -1,5 +1,5 @@
 """
-Created 01. Februar 2024 by Daniel Van Opdenbosch, Technical University of Munich
+Created 13. Maerz 2024 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -31,16 +31,16 @@ for f in glob.glob('*.str'):
 						print('Grenze Gitterparameter nicht gesetzt - bitte pruefen!')
 
 if len(sys.argv)==4:
-	switch,incohcor=sys.argv[1],sys.argv[2],eval(sys.argv[3])
+	switch,inelcor=sys.argv[1],sys.argv[2],eval(sys.argv[3])
 else:
 	switch=input('hetero oder homo [homo]? ')
 	if switch=='':
 		switch='homo'
-	incohcor=input('Korrektur fuer inkohaerente Streuung [False]? ')
-	if incohcor=='':
-		incohcor=False
+	inelcor=input('Korrektur fuer inelastische Streuung [False]? ')
+	if inelcor=='':
+		inelcor=False
 	else:
-		incohcor=eval(incohcor)
+		inelcor=eval(inelcor)
 
 filenamelist=[]
 phaselist=[]
@@ -206,9 +206,9 @@ for f in glob.glob('*.lst'):
 					ycoh+=np.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
 			if np.median(ycoh)!=0:
 				if switch=='homo':
-					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycoh,twotheta,emission,incohcor)
+					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycoh,twotheta,emission,inelcor)
 				elif switch=='hetero':
-					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yinc+ycoh,ycoh,twotheta,emission,incohcor)
+					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yinc+ycoh,ycoh,twotheta,emission,inelcor)
 					print('Warnung: xc ist kristalliner Anteil an homogener Portion.')
 				else:
 					print('Eingabe hetero / homo nicht verstanden, xc wird auf 0 gesetzt.')

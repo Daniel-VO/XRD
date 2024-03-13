@@ -1,5 +1,5 @@
 """
-Created 01. Februar 2024 by Daniel Van Opdenbosch, Technical University of Munich
+Created 13. Maerz 2024 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -28,7 +28,7 @@ def Vonkfunc(vects,xc,k):														#Vonk Anpassung an R
 def polysecond(x,C0,C1,C2):														#Anpassung an R mit Polynom zweiten Grades
 	return C0+C1*x+C2*x**2
 
-def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,incohcor):	#Hauptfunktion Vonk.Vonk()
+def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,inelcor):	#Hauptfunktion Vonk.Vonk()
 	vects=2*np.sin(np.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
 	P=1+np.cos(np.radians(twotheta_deg))**2
 	lowerbound=2*vects[np.argmax(ycoh)]
@@ -39,9 +39,9 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,incohcor):	#Hauptfunktio
 		if isinstance(value,str):
 			atoms[i]=xu.materials.atom.Atom(value[0]+value[1:].lower(),1)
 
-	#Berechnung der inkohaerenten Streuung J, Korrektur von yobs
+	#Berechnung der inelastischen Streuung J, Korrektur von yobs
 	argsJ=np.where(vects[1:]>0.6)
-	if incohcor==True:
+	if inelcor==True:
 		params=lm.Parameters()
 		params.add('J',1,min=0)
 		def VonkTfitfunc(params):
