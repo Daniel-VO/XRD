@@ -14,5 +14,5 @@ for f in glob.glob('*.str'):
 					for p in params:
 						if item==p and 'E=' not in s:
 							startval=float(s.split('=')[-1].split('_')[0])
-							news=s.replace(s.split('=')[-1],'%.6f'%startval+'_'+'%.6f'%(startval/limit)+'^'+'%.6f'%(startval*limit))
+							news=s.replace(s.split('=')[-1],'%.4f'%startval+'_'+'%.4f'%(startval/limit)+'^'+'%.4f'%(startval*limit))
 							os.system("sed -i 's/"+s+"/"+news+"/g' "+f)
