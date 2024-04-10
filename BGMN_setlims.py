@@ -12,5 +12,5 @@ for f in glob.glob('*[!amorphous].str'):
 				for p in params:
 					if item==p and 'E=' not in s:
 						startval=float(s.split('=')[-1].split('_')[0])
-						news=s.replace(s.split('=')[-1],str(startval)+'_'+str(round(startval/limit,6))+'^'+str(round(startval*limit,6)))
+						news=s.replace(s.split('=')[-1],'%.6f'%startval+'_'+'%.6f'%(startval/limit)+'^'+'%.6f'%(startval*limit))
 						os.system("sed -i 's/"+s+"/"+news+"/g' "+f)
