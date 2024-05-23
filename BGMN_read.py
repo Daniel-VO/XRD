@@ -1,5 +1,5 @@
 """
-Created 13. Maerz 2024 by Daniel Van Opdenbosch, Technical University of Munich
+Created 23. May 2024 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -67,8 +67,6 @@ J_collect=[]
 
 for f in glob.glob('*.lst'):
 	filename=os.path.splitext(f)[0]
-	print(filename)
-
 	emission='CuKa1'
 	if ('LAMBDA=cu' or 'LAMBDA=CU') in open(filename+'.sav').read():
 		emission='CuKa1'
@@ -182,6 +180,8 @@ for f in glob.glob('*.lst'):
 				Gewicht=uq(float(split0[2]),pq.dimensionless,0)
 			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
 				Gewicht=uq(float(split0[1]),pq.dimensionless,0)
+			else:
+				Gewicht=uq(0,pq.dimensionless,0)
 
 		if 'Atomic positions for phase' in line and 'amorphous' not in line and 'single' not in line:
 			Vol=lata*latb*latc
@@ -249,8 +249,8 @@ for j,value in enumerate(export):
 		exportstring+=','
 	exportstring+=namestr(export[j],locals())
 
-os.system('mv '+'results.pic '+'alle_alt.pic')
-os.system('mv '+'results.txt '+'alle_alt.txt')
+os.system('mv '+'results.pic '+'results_alt.pic')
+os.system('mv '+'results.txt '+'results_alt.txt')
 
 pickle.dump(export,open('results.pic','wb'))
 
@@ -259,10 +259,9 @@ print('Ausgegeben als Liste von Python quantities.UncertainQuantity: ['+exportst
 print('____')
 print("Zum Laden der Liste: pickle.load(open('results.pic','rb')")
 
-sys.stdout=open('results.txt','w')
 for f,valuei in enumerate(filenamelist):
 	printline=str(filenamelist[f])+'; '+str(phaselist[f])
 	for j,valuej in enumerate(export):
 		if j>1 and valuej!=[]:
 			printline+='; '+namestr(export[j],locals())+': '+str(float(valuej[f].magnitude))+' +/- '+str(valuej[f].uncertainty)
-	print(printline)
+	print(printline,file=open('results.txt','a'))
