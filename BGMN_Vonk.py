@@ -34,7 +34,7 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,inelcor):	#Hauptfunktion
 	vects=2*np.sin(np.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
 	P=1+np.cos(np.radians(twotheta_deg))**2
 	lowerbound=2*vects[np.argmax(ycoh)]
-	yobs*=vects**2/P;ycoh*=vects**2/P
+	yobs,ycoh=np.multiply([yobs,ycoh],vects**2/P)
 	energy=xu.utilities_noconf.energy(emission)
 
 	for i,value in enumerate(atoms):
@@ -61,7 +61,7 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,inelcor):	#Hauptfunktion
 
 	#Normierung auf elektronische Einheiten eA^-2
 	normEU=np.median((fsquared(vects,atoms,energy)*vects**2)[-10:])/np.median(yobs[-10:])
-	yobs*=normEU;ycoh*=normEU
+	yobs,ycoh=np.multiply([yobs,ycoh],normEU)
 
 	#Berechnung von Rulands R, Anpassung durch Vonks Funktion
 	argsR=np.where(vects[1:]>lowerbound)
