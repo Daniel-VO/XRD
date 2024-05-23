@@ -29,7 +29,7 @@ def polysecond(x,C0,C1,C2):														#Anpassung an R mit Polynom zweiten Gra
 	return C0+C1*x+C2*x**2
 
 def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Hauptfunktion Vonk.Vonk()
-	if varslitcor==True:
+	if varslitcor:
 		varslitcor=np.sin(np.radians(twotheta_deg/2))
 		yobs/=varslitcor;ycoh/=varslitcor
 	vects=2*np.sin(np.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
@@ -44,7 +44,7 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Ha
 
 	#Berechnung der inelastischen Streuung J, Korrektur von yobs
 	argsJ=np.where(vects[1:]>0.6)
-	if inelcor==True:
+	if inelcor:
 		params=lm.Parameters()
 		params.add('J',1,min=0)
 		def VonkTfitfunc(params):
