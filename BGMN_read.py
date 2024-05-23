@@ -30,8 +30,8 @@ for f in glob.glob('*.str'):
 					else:
 						print('Grenze Gitterparameter nicht gesetzt - bitte pruefen!')
 
-if len(sys.argv)==4:
-	switch,inelcor=sys.argv[1],sys.argv[2],eval(sys.argv[3])
+if len(sys.argv)==5:
+	switch,inelcor,varslitcor=sys.argv[1],sys.argv[2],eval(sys.argv[3]),eval(sys.argv[4])
 else:
 	switch=input('hetero oder homo [homo]? ')
 	if switch=='':
@@ -41,6 +41,11 @@ else:
 		inelcor=False
 	else:
 		inelcor=eval(inelcor)
+	varslitcor=input('Korrektur fuer variable Blende [False]? ')
+	if varslitcor=='':
+		varslitcor=False
+	else:
+		varslitcor=eval(varslitcor)
 
 filenamelist=[]
 phaselist=[]
@@ -206,9 +211,9 @@ for f in glob.glob('*.lst'):
 					ycoh+=np.genfromtxt(filename+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
 			if np.median(ycoh)!=0:
 				if switch=='homo':
-					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycoh,twotheta,emission,inelcor)
+					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yobs*1,ycoh,twotheta,emission,inelcor,varslitcor)
 				elif switch=='hetero':
-					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yinc+ycoh,ycoh,twotheta,emission,inelcor)
+					xc,k,J=BGMN_Vonk.Vonk(filename+'_'+phasename,atoms,yinc+ycoh,ycoh,twotheta,emission,inelcor,varslitcor)
 					print('Warnung: xc ist kristalliner Anteil an homogener Portion.')
 				else:
 					print('Eingabe hetero / homo nicht verstanden, xc wird auf 0 gesetzt.')
