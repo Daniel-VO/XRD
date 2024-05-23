@@ -30,11 +30,12 @@ def polysecond(x,C0,C1,C2):														#Anpassung an R mit Polynom zweiten Gra
 
 def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,inelcor):	#Hauptfunktion Vonk.Vonk()
 	if np.polyfit(twotheta_deg,yobs,1)[0]>0:
-		yobs,ycoh=np.divide([yobs,ycoh],np.sin(np.radians(twotheta_deg/2)))
+		varslitcorr=np.sin(np.radians(twotheta_deg/2))
+		yobs/=varslitcorr;ycoh/=varslitcorr
 	vects=2*np.sin(np.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
 	P=1+np.cos(np.radians(twotheta_deg))**2
 	lowerbound=2*vects[np.argmax(ycoh)]
-	yobs,ycoh=np.multiply([yobs,ycoh],vects**2/P)
+	yobs*=vects**2/P;ycoh*=vects**2/P
 	energy=xu.utilities_noconf.energy(emission)
 
 	for i,value in enumerate(atoms):
@@ -61,7 +62,7 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,inelcor):	#Hauptfunktion
 
 	#Normierung auf elektronische Einheiten eA^-2
 	normEU=np.median((fsquared(vects,atoms,energy)*vects**2)[-10:])/np.median(yobs[-10:])
-	yobs,ycoh=np.multiply([yobs,ycoh],normEU)
+	yobs*=normEU;ycoh*=normEU
 
 	#Berechnung von Rulands R, Anpassung durch Vonks Funktion
 	argsR=np.where(vects[1:]>lowerbound)
