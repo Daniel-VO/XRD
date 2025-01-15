@@ -1,9 +1,10 @@
 """
-Created 23. May 2024 by Daniel Van Opdenbosch, Technical University of Munich
+Created 15. January 2025 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
 
+import scipy
 import numpy as np
 import lmfit as lm
 import matplotlib as mpl
@@ -11,16 +12,15 @@ import matplotlib.pyplot as plt
 import xrayutilities as xu
 import quantities as pq
 from quantities import UncertainQuantity as uq
-from scipy import integrate
 
 def fsquared(vects,atoms,energy):												#Atomare Streufaktoren
 	return np.real(np.average(np.array([i.f(2*np.pi*vects,en=energy) for i in atoms])**2,axis=0))
 
 def R(vects,yobs,ycoh):														#Vonk R-Funktion
-	return integrate.cumtrapz(yobs,x=vects)/integrate.cumtrapz(ycoh,x=vects)
+	return scipy.integrate.cumulative_trapezoid(yobs,x=vects)/scipy.integrate.cumulative_trapezoid(ycoh,x=vects)
 
 def T(vects,atoms,energy,yobs,J):												#Vonk T-Funktion
-	return integrate.cumtrapz(fsquared(vects,atoms,energy)*vects**2,x=vects)/integrate.cumtrapz(yobs-J*vects**2,x=vects)
+	return scipy.integrate.cumulative_trapezoid(fsquared(vects,atoms,energy)*vects**2,x=vects)/scipy.integrate.cumulative_trapezoid(yobs-J*vects**2,x=vects)
 
 def Vonkfunc(vects,xc,k):														#Vonk Anpassung an R
 	return 1/xc+(k/(2*xc))/vects**2
