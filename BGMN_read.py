@@ -1,5 +1,5 @@
 """
-Created 23. May 2024 by Daniel Van Opdenbosch, Technical University of Munich
+Created 10. February 2025 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -53,6 +53,9 @@ XrayDensity_collect=[]
 lata_collect=[]
 latb_collect=[]
 latc_collect=[]
+alpha_collect=[]
+beta_collect=[]
+gamma_collect=[]
 GrainSize100_collect=[]
 GrainSize010_collect=[]
 GrainSize001_collect=[]
@@ -96,6 +99,7 @@ for f in glob.glob('*.lst'):
 			if 'NM' in split0[1]:
 				unitoflength=pq.nm
 			lata=latb=latc=uq(0,unitoflength,0)
+			alpha=beta=gamma=uq(90,pq.degrees,0)
 			TDS100=TDS010=TDS001=TDS=uq(0,unitoflength**2,0)
 			GrainSize100=GrainSize010=GrainSize001=uq(0,unitoflength,0)
 			MicroStrain100=MicroStrain010=MicroStrain001=uq(0,pq.CompoundUnit('m/m'),0)
@@ -118,6 +122,21 @@ for f in glob.glob('*.lst'):
 				latc=uq(float(split0[1].split('+-')[0]),unitoflength,float(split0[1].split('+-')[1]))
 			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
 				latc=uq(float(split0[1]),unitoflength,0)
+		if split0[0]=='ALPHA':
+			if '+-' in split0[1]:
+				alpha=uq(float(split0[1].split('+-')[0]),pq.degrees,float(split0[1].split('+-')[1]))
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
+				alpha=uq(float(split0[1]),unitoflength,0)
+		if split0[0]=='BETA':
+			if '+-' in split0[1]:
+				beta=uq(float(split0[1].split('+-')[0]),pq.degrees,float(split0[1].split('+-')[1]))
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
+				beta=uq(float(split0[1]),unitoflength,0)
+		if split0[0]=='GAMMA':
+			if '+-' in split0[1]:
+				gamma=uq(float(split0[1].split('+-')[0]),pq.degrees,float(split0[1].split('+-')[1]))
+			elif 'UNDEF' not in split0[1] and 'ERROR' not in split0[1]:
+				gamma=uq(float(split0[1]),unitoflength,0)
 		if split0[0]=='GrainSize(1,0,0)':
 			if '+-' in split0[1]:
 				GrainSize100=uq(float(split0[1].split('+-')[0]),unitoflength,float(split0[1].split('+-')[1]))
@@ -189,7 +208,7 @@ for f in glob.glob('*.lst'):
 				Gewicht=uq(0,pq.dimensionless,0)
 
 		if 'Atomic positions for phase' in line and 'amorphous' not in line and 'single' not in line:
-			Vol=lata*latb*latc
+			Vol=lata*latb*latc*(1-np.cos(np.radians(alpha))**2-np.cos(np.radians(beta))**2-np.cos(np.radians(gamma))**2+2*np.cos(np.radians(alpha))*np.cos(np.radians(beta))*np.cos(np.radians(gamma)))**0.5
 			XrayDensity=uq(XrayDensity0,pq.kg/pq.l,float(Vol.uncertainty/Vol.magnitude))
 			atoms_collect,occups_collect=[],[]
 			for linenumber1,line1 in enumerate(l[linenumber:]):
@@ -225,6 +244,9 @@ for f in glob.glob('*.lst'):
 			lata_collect.append(lata)
 			latb_collect.append(latb)
 			latc_collect.append(latc)
+			alpha_collect.append(alpha)
+			beta_collect.append(beta)
+			gamma_collect.append(gamma)
 			GrainSize100_collect.append(GrainSize100)
 			GrainSize010_collect.append(GrainSize010)
 			GrainSize001_collect.append(GrainSize001)
@@ -242,7 +264,7 @@ for f in glob.glob('*.lst'):
 			k_collect.append(k)
 			J_collect.append(J)
 
-export=[filenamelist,phaselist,XrayDensity_collect,lata_collect,latb_collect,latc_collect,GrainSize100_collect,GrainSize010_collect,GrainSize001_collect,MicroStrain100_collect,MicroStrain010_collect,MicroStrain001_collect,Textur100_collect,Textur010_collect,Textur001_collect,TDS100_collect,TDS010_collect,TDS001_collect,Gewicht_collect,xc_collect,k_collect,J_collect]
+export=[filenamelist,phaselist,XrayDensity_collect,lata_collect,latb_collect,latc_collect,alpha_collect,beta_collect,gamma_collect,GrainSize100_collect,GrainSize010_collect,GrainSize001_collect,MicroStrain100_collect,MicroStrain010_collect,MicroStrain001_collect,Textur100_collect,Textur010_collect,Textur001_collect,TDS100_collect,TDS010_collect,TDS001_collect,Gewicht_collect,xc_collect,k_collect,J_collect]
 
 # ~ print(export)
 
