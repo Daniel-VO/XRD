@@ -1,5 +1,5 @@
 """
-Created 15. January 2025 by Daniel Van Opdenbosch, Technical University of Munich
+Created 23. October 2025 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -45,6 +45,7 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Ha
 	#Berechnung der inelastischen Streuung J, Korrektur von yobs
 	argsJ=np.where(vects[1:]>0.6)
 	if inelcor:
+		err={}
 		params=lm.Parameters()
 		params.add('J',1,min=0)
 		def VonkTfitfunc(params):
