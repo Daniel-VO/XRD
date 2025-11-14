@@ -34,7 +34,7 @@ for i in list(filter(lambda a:'Halter' not in a,glob.glob(os.path.splitext(filep
 	for i,valuei in enumerate(yh):
 		if tt_deg[i]>min(tt_deg)+2 and valuei>min(yh[i-int(2/step):i+int(2/step)])*2:
 			argscut.append(np.arange(i-int(1/2/step),i+int(1/2/step)))
-	Cyh=np.max(yobs[argscut])/np.max(yh[argscut])/2
+	Cyh=(np.max(yobs[argscut])-np.min(yobs[argscut]))/(np.max(yh[argscut])-np.min(yh[argscut]))/2
 
 	plt.close('all')
 	plt.plot(tt_deg,yobs)
