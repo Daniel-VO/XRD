@@ -34,7 +34,6 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Ha
 		yobs/=varslitcor;ycoh/=varslitcor
 	vects=2*np.sin(np.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
 	P=1+np.cos(np.radians(twotheta_deg))**2
-	lowerbound=2*vects[np.argmax(ycoh)]
 	yobs*=vects**2/P;ycoh*=vects**2/P
 	energy=xu.utilities_noconf.energy(emission)
 
@@ -66,21 +65,11 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Ha
 	yobs*=normEU;ycoh*=normEU
 
 	#Berechnung von Rulands R, Anpassung durch Vonks Funktion
-	argsR=np.where(vects[1:]>lowerbound)
-	RulandR=R(vects,yobs,ycoh)
-	err={}
-	params=lm.Parameters()
-	params.add('C0',1,min=1)
-	params.add('C1',0,min=0)
-	params.add('C2',0)
-	def VonkRfitfunc(params):
-		prmR=params.valuesdict()
-		return RulandR[argsR]-polysecond(vects**2,prmR['C0'],prmR['C1'],prmR['C2'])[argsR]
-	resultR=lm.minimize(VonkRfitfunc,params,method='least_squares')
-	prmR=resultR.params.valuesdict()
-	for key in resultR.params:
-		err[key]=resultR.params[key].stderr
-	# ~ resultR.params.pretty_print()
+	interpol=scipy.interpolate.interp1d(vects[1:]**2,R(vects,yobs,ycoh))
+	vectsRsq=np.linspace(0.1,vects[-1]**2)
+	RulandR=interpol(vectsRsq)
+	sl2,int2,sl2lo,sl2hi=scipy.stats.theilslopes(np.gradient(RulandR,vectsRsq),x=2*vectsRsq)
+	sl1,int1,sl1lo,sl1hi=scipy.stats.theilslopes(RulandR-sl2*vectsRsq**2,x=vectsRsq)
 
 	#Abbildungen
 	plt.close('all')
@@ -89,8 +78,8 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Ha
 	fig,ax1=plt.subplots(figsize=(7.5/2.54,5.3/2.54))
 	ax2=ax1.twinx()
 
-	ax1.plot(vects[argsR]**2,RulandR[argsR],'k',linewidth=0.5)
-	ax1.plot(np.linspace(0,max(vects**2)),polysecond(np.linspace(0,max(vects**2)),prmR['C0'],prmR['C1'],prmR['C2']),'k--',linewidth=0.5)
+	ax1.plot(vectsRsq,RulandR,'+',color='k',ms=3)
+	ax1.plot(np.linspace(0,max(vects**2)),polysecond(np.linspace(0,max(vects**2)),int1,sl1,sl2),'k--',linewidth=0.5)
 
 	ax2.plot(vects**2,yobs,'k',linewidth=0.5)
 	ax2.plot(vects**2,ycoh,'k--',linewidth=0.5)
@@ -116,7 +105,7 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Ha
 	plt.tight_layout(pad=0.1)
 	plt.savefig(filename+'_Vonk.png',dpi=300)
 
-	xc=1/uq(prmR['C0'],pq.dimensionless,err['C0'])
-	k=2*xc*uq(prmR['C1'],pq.angstrom**2,err['C1'])
+	xc=1/uq(int1,pq.dimensionless,(sl1hi-sl1lo)/4)
+	k=2*xc*uq(sl1,pq.angstrom**2,-2*(sl2hi-sl2lo)/4)
 
 	return xc,k,J
