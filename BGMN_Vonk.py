@@ -1,5 +1,5 @@
 """
-Created 04. Dezember 2025 by Daniel Van Opdenbosch, Technical University of Munich
+Created 08. Dezember 2025 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -24,9 +24,6 @@ def T(vects,atoms,energy,yobs,J):												#Vonk T-Funktion
 
 def Vonkfunc(vects,xc,k):														#Vonk Anpassung an R
 	return 1/xc+(k/(2*xc))/vects**2
-
-def polysecond(x,C0,C1,C2):														#Anpassung an R mit Polynom zweiten Grades
-	return C0+C1*x+C2*x**2
 
 def Vonk(fn,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Hauptfunktion Vonk.Vonk()
 	if varslitcor:
@@ -79,7 +76,7 @@ def Vonk(fn,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Hauptfun
 	ax2=ax1.twinx()
 
 	ax1.plot(vectsRsq,RulandR,'+',color='k',ms=3)
-	ax1.plot(np.linspace(0,max(vects**2)),polysecond(np.linspace(0,max(vects**2)),int1,sl1,sl2),'k--',linewidth=0.5)
+	ax1.plot(np.linspace(0,max(vects**2)),np.poly1d([sl2,sl1,int1])(np.linspace(0,max(vects**2))),'k--',linewidth=0.5)
 
 	ax2.plot(vects**2,yobs,'k',linewidth=0.5)
 	ax2.plot(vects**2,ycoh,'k--',linewidth=0.5)
