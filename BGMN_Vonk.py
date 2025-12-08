@@ -1,5 +1,5 @@
 """
-Created 17. November 2025 by Daniel Van Opdenbosch, Technical University of Munich
+Created 04. Dezember 2025 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -28,7 +28,7 @@ def Vonkfunc(vects,xc,k):														#Vonk Anpassung an R
 def polysecond(x,C0,C1,C2):														#Anpassung an R mit Polynom zweiten Grades
 	return C0+C1*x+C2*x**2
 
-def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Hauptfunktion Vonk.Vonk()
+def Vonk(fn,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Hauptfunktion Vonk.Vonk()
 	if varslitcor:
 		varslitcor=np.sin(np.radians(twotheta_deg/2))
 		yobs/=varslitcor;ycoh/=varslitcor
@@ -42,7 +42,7 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Ha
 			atoms[i]=xu.materials.atom.Atom(value[0]+value[1:].lower(),1)
 
 	#Berechnung der inelastischen Streuung J, Korrektur von yobs
-	argsJ=np.where(vects[1:]>0.6)
+	argsJ=vects[1:]>0.6
 	if inelcor:
 		err={}
 		params=lm.Parameters()
@@ -68,7 +68,7 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Ha
 	interpol=scipy.interpolate.interp1d(vects[1:]**2,R(vects,yobs,ycoh))
 	vectsRsq=np.linspace(0.1,vects[-1]**2)
 	RulandR=interpol(vectsRsq)
-	sl2,int2,sl2lo,sl2hi=scipy.stats.theilslopes(np.gradient(RulandR,vectsRsq),x=2*vectsRsq)
+	sl2,int2,sl2lo,sl2hi=scipy.stats.theilslopes(np.gradient(RulandR,vectsRsq)/2,x=vectsRsq)
 	sl1,int1,sl1lo,sl1hi=scipy.stats.theilslopes(RulandR-sl2*vectsRsq**2,x=vectsRsq)
 
 	#Abbildungen
@@ -103,7 +103,7 @@ def Vonk(filename,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Ha
 	ax1.yaxis.get_offset_text().set_size(8)
 	ax2.yaxis.get_offset_text().set_size(8)
 	plt.tight_layout(pad=0.1)
-	plt.savefig(filename+'_Vonk.png',dpi=300)
+	plt.savefig(fn+'_Vonk.png',dpi=300)
 
 	xc=1/uq(int1,pq.dimensionless,(sl1hi-sl1lo)/4)
 	k=2*xc*uq(sl1,pq.angstrom**2,-2*(sl2hi-sl2lo)/4)
