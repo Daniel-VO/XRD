@@ -291,5 +291,5 @@ for f,valuei in enumerate(fnlist):
 	for j,valuej in enumerate(export):
 		if j>1 and valuej!=[]:
 			printline+='; '+namestr(export[j],locals())+': '+'%.8e'%float(valuej[f].magnitude)+' +/- '+'%.8e'%valuej[f].uncertainty
-	printline+='; '+switch+'_'+str(inelcor)+'_'+str(varslitcor)
+	printline+='; comp: '+switch+' inelcor: '+str(inelcor)+' varslitcor: '+str(varslitcor)
 	print(printline,file=open('results.txt','a'))
