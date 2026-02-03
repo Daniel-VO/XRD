@@ -1,5 +1,5 @@
 """
-Created 08. Dezember 2025 by Daniel Van Opdenbosch, Technical University of Munich
+Created 03. Februar 2026 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -65,8 +65,10 @@ def Vonk(fn,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Hauptfun
 	interpol=scipy.interpolate.interp1d(vects[1:]**2,R(vects,yobs,ycoh))
 	vectsRsq=np.linspace(0.1,vects[-1]**2)
 	RulandR=interpol(vectsRsq)
-	sl2,int2,sl2lo,sl2hi=scipy.stats.theilslopes(np.gradient(RulandR,vectsRsq)/2,x=vectsRsq)
-	sl1,int1,sl1lo,sl1hi=scipy.stats.theilslopes(RulandR-sl2*vectsRsq**2,x=vectsRsq)
+	sl2,int2=scipy.stats.siegelslopes(np.gradient(RulandR,vectsRsq),x=2*vectsRsq)
+	sl1,int1=scipy.stats.siegelslopes(RulandR-sl2*vectsRsq**2,x=vectsRsq)
+	xc=1/uq(int1,pq.dimensionless,scipy.stats.median_abs_deviation(RulandR-sl2*vectsRsq**2-sl1*vectsRsq))
+	k=2*xc*uq(sl1,pq.angstrom**2,0)
 
 	#Abbildungen
 	plt.close('all')
@@ -101,8 +103,5 @@ def Vonk(fn,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Hauptfun
 	ax2.yaxis.get_offset_text().set_size(8)
 	plt.tight_layout(pad=0.1)
 	plt.savefig(fn+'_Vonk.png',dpi=300)
-
-	xc=1/uq(int1,pq.dimensionless,(sl1hi-sl1lo)/4)
-	k=2*xc*uq(sl1,pq.angstrom**2,-2*(sl2hi-sl2lo)/4)
 
 	return xc,k,J
