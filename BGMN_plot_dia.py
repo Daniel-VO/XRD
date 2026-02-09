@@ -24,7 +24,7 @@ for i in glob.glob('*.dia'):
 	mpl.rc('text.latex',preamble=r'\usepackage[helvet]{sfmath}')
 	plt.figure(figsize=(7.5/2.54,5.3/2.54))
 
-	linestyles=['k--','k-.','k:']
+	linestyles=['k--','k-.','k:','k.']
 	for k,name in enumerate(columns):
 		if 'amorph' in name:
 			ybkg+=data[k]

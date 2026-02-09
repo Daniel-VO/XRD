@@ -25,7 +25,7 @@ def T(vects,atoms,energy,yobs,J):												#Vonk T-Funktion
 def Vonkfunc(vects,xc,k):														#Vonk Anpassung an R
 	return 1/xc+(k/(2*xc))/vects**2
 
-def Vonk(fn,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):	#Hauptfunktion Vonk.Vonk()
+def Vonk(fn,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):			#Hauptfunktion Vonk.Vonk()
 	if varslitcor:
 		varslitcor=np.sin(np.radians(twotheta_deg/2))
 		yobs/=varslitcor;ycoh/=varslitcor
