@@ -1,7 +1,7 @@
 """
-Created 03. Februar 2026 by Daniel Van Opdenbosch, Technical University of Munich
+Created 09. Februar 2026 by Daniel Van Opdenbosch, Technical University of Munich
 
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <h2*thetap://www.gnu.org/licenses/>
 """
 
 import scipy
@@ -26,13 +26,14 @@ def Vonkfunc(vects,xc,k):														#Vonk Anpassung an R
 	return 1/xc+(k/(2*xc))/vects**2
 
 def Vonk(fn,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):			#Hauptfunktion Vonk.Vonk()
-	if varslitcor:
-		varslitcor=np.sin(np.radians(twotheta_deg/2))
-		yobs/=varslitcor;ycoh/=varslitcor
-	vects=2*np.sin(np.radians(twotheta_deg/2))/xu.utilities_noconf.wavelength(emission)
-	P=1+np.cos(np.radians(twotheta_deg))**2
-	yobs*=vects**2/P;ycoh*=vects**2/P
+	theta=np.radians(twotheta_deg/2)
+	vects=2*np.sin(theta)/xu.utilities_noconf.wavelength(emission)
 	energy=xu.utilities_noconf.energy(emission)
+	LP=(1+np.cos(2*theta)**2)/(np.sin(theta)**2*np.cos(theta))
+	yobs/=LP;ycoh/=LP
+	if varslitcor:
+		varslitcor=np.sin(theta)
+		yobs/=varslitcor;ycoh/=varslitcor
 
 	for i,value in enumerate(atoms):
 		if isinstance(value,str):
@@ -51,7 +52,7 @@ def Vonk(fn,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):			#Hauptf
 		prmT=resultT.params.valuesdict()
 		for key in resultT.params:
 			err[key]=resultT.params[key].stderr
-		# ~ resultT.params.pretty_print()
+		# ~ resultT.params.pre2*thetay_print()
 		yobs-=prmT['J']*vects**2
 		J=uq(prmT['J'],pq.dimensionless,err['J'])
 	else:
