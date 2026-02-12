@@ -47,11 +47,10 @@ def Vonk(fn,atoms,yobs,ycoh,tt_deg,emission,varslitcor):			#Hauptfunktion Vonk.V
 	def VonkTfitfunc(params):
 		prmT=params.valuesdict()
 		return T(vects,atoms,energy,yobs,prmT['J'])[argsJ]-np.median(T(vects,atoms,energy,yobs,prmT['J'])[argsJ][-10:])
-	resultT=lm.minimize(VonkTfitfunc,params,method='least_squares')
+	resultT=lm.minimize(VonkTfitfunc,params)
 	prmT=resultT.params.valuesdict()
 	for key in resultT.params:
 		err[key]=resultT.params[key].stderr
-	# ~ resultT.params.pre2*thetay_print()
 	yobs-=prmT['J']*vects**2
 	J=uq(prmT['J'],pq.dimensionless,err['J'])
 
