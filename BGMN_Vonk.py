@@ -1,7 +1,7 @@
 """
-Created 09. Februar 2026 by Daniel Van Opdenbosch, Technical University of Munich
+Created 12. Februar 2026 by Daniel Van Opdenbosch, Technical University of Munich
 
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <h2*thetap://www.gnu.org/licenses/>
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
 
 import scipy
@@ -25,8 +25,8 @@ def T(vects,atoms,energy,yobs,J):												#Vonk T-Funktion
 def Vonkfunc(vects,xc,k):														#Vonk Anpassung an R
 	return 1/xc+(k/(2*xc))/vects**2
 
-def Vonk(fn,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):			#Hauptfunktion Vonk.Vonk()
-	theta=np.radians(twotheta_deg/2)
+def Vonk(fn,atoms,yobs,ycoh,tt_deg,emission,varslitcor):			#Hauptfunktion Vonk.Vonk()
+	theta=np.radians(tt_deg/2)
 	vects=2*np.sin(theta)/xu.utilities_noconf.wavelength(emission)
 	energy=xu.utilities_noconf.energy(emission)
 	LP=(1+np.cos(2*theta)**2)/(np.sin(theta)**2*np.cos(theta))
@@ -41,22 +41,19 @@ def Vonk(fn,atoms,yobs,ycoh,twotheta_deg,emission,inelcor,varslitcor):			#Hauptf
 
 	#Berechnung der inelastischen Streuung J, Korrektur von yobs
 	argsJ=vects[1:]>0.6
-	if inelcor:
-		err={}
-		params=lm.Parameters()
-		params.add('J',1,min=0)
-		def VonkTfitfunc(params):
-			prmT=params.valuesdict()
-			return T(vects,atoms,energy,yobs,prmT['J'])[argsJ]-np.median(T(vects,atoms,energy,yobs,prmT['J'])[argsJ][-10:])
-		resultT=lm.minimize(VonkTfitfunc,params,method='least_squares')
-		prmT=resultT.params.valuesdict()
-		for key in resultT.params:
-			err[key]=resultT.params[key].stderr
-		# ~ resultT.params.pre2*thetay_print()
-		yobs-=prmT['J']*vects**2
-		J=uq(prmT['J'],pq.dimensionless,err['J'])
-	else:
-		J=uq(0,pq.dimensionless,0)
+	err={}
+	params=lm.Parameters()
+	params.add('J',1,min=0)
+	def VonkTfitfunc(params):
+		prmT=params.valuesdict()
+		return T(vects,atoms,energy,yobs,prmT['J'])[argsJ]-np.median(T(vects,atoms,energy,yobs,prmT['J'])[argsJ][-10:])
+	resultT=lm.minimize(VonkTfitfunc,params,method='least_squares')
+	prmT=resultT.params.valuesdict()
+	for key in resultT.params:
+		err[key]=resultT.params[key].stderr
+	# ~ resultT.params.pre2*thetay_print()
+	yobs-=prmT['J']*vects**2
+	J=uq(prmT['J'],pq.dimensionless,err['J'])
 
 	#Normierung auf elektronische Einheiten eA^-2
 	normEU=np.median((fsquared(vects,atoms,energy)*vects**2)[-10:])/np.median(yobs[-10:])

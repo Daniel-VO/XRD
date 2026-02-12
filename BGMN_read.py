@@ -1,5 +1,5 @@
 """
-Created 03. Februar 2026 by Daniel Van Opdenbosch, Technical University of Munich
+Created 12. Februar 2026 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -30,17 +30,12 @@ for f in glob.glob('*.str'):
 					else:
 						print('Grenze Gitterparameter nicht gesetzt - bitte pruefen!')
 
-if len(sys.argv)==5:
-	switch,inelcor,varslitcor=sys.argv[1],sys.argv[2],eval(sys.argv[3]),eval(sys.argv[4])
+if len(sys.argv)==4:
+	switch,varslitcor=sys.argv[1],sys.argv[2],eval(sys.argv[3])
 else:
 	switch=input('hetero oder homo [homo]? ')
 	if switch=='':
 		switch='homo'
-	inelcor=input('Korrektur fuer inelastische Streuung [False]? ')
-	if inelcor=='':
-		inelcor=False
-	else:
-		inelcor=eval(inelcor)
 	varslitcor=input('Korrektur fuer variable Blende [False]? ')
 	if varslitcor=='':
 		varslitcor=False
@@ -82,7 +77,7 @@ for f in glob.glob('*.lst'):
 	else:
 		print('Emission nicht erkannt, falle zurück auf: '+emission)
 
-	twotheta,yobs,yfit,yinc=np.genfromtxt(fn+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=(0,1,2,3))
+	tt_deg,yobs,yfit,yinc=np.genfromtxt(fn+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=(0,1,2,3))
 	dia=open(fn+'.dia').readlines()
 	for d in range(int(dia[0].split('[')[-1].split(']')[0])):
 		if 'amorph' in dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n',''):
@@ -228,9 +223,9 @@ for f in glob.glob('*.lst'):
 					ycoh+=np.genfromtxt(fn+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
 			if np.median(ycoh)!=0:
 				if switch=='homo':
-					xc,k,J=BGMN_Vonk.Vonk(fn+'_'+phasename,atoms,yobs*1,ycoh,twotheta,emission,inelcor,varslitcor)
+					xc,k,J=BGMN_Vonk.Vonk(fn+'_'+phasename,atoms,yobs*1,ycoh,tt_deg,emission,varslitcor)
 				elif switch=='hetero':
-					xc,k,J=BGMN_Vonk.Vonk(fn+'_'+phasename,atoms,yinc+ycoh,ycoh,twotheta,emission,inelcor,varslitcor)
+					xc,k,J=BGMN_Vonk.Vonk(fn+'_'+phasename,atoms,yinc+ycoh,ycoh,tt_deg,emission,varslitcor)
 					print('Warnung: xc ist kristalliner Anteil an homogener Portion.')
 				else:
 					print('Eingabe hetero / homo nicht verstanden, xc wird auf 0 gesetzt.')
@@ -291,5 +286,5 @@ for f,valuei in enumerate(fnlist):
 	for j,valuej in enumerate(export):
 		if j>1 and valuej!=[]:
 			printline+='; '+namestr(export[j],locals())+': '+'%.8e'%float(valuej[f].magnitude)+' +/- '+'%.8e'%valuej[f].uncertainty
-	printline+='; comp: '+switch+' inelcor: '+str(inelcor)+' varslitcor: '+str(varslitcor)
+	printline+='; comp: '+switch+' varslitcor: '+str(varslitcor)
 	print(printline,file=open('results.txt','a'))
