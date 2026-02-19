@@ -63,7 +63,7 @@ def corr(i):
 	# ~ plt.plot(tt_deg,A(prm['mu'],prm['t'],tt_deg))
 	# ~ plt.show()
 
-	Cyh=np.quantile(relints/A(prm['mu'],prm['t'],tt_deg[peaks]),0)
+	Cyh=A(prm['mu'],prm['t'],180)
 	argscut=np.concatenate(argscut)
 	# ~ Cyh=(max(yobs[argscut])-min(yobs[argscut]))/(max(yh[argscut])-min(yh[argscut]))/2
 
