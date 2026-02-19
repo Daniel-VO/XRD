@@ -24,6 +24,13 @@ else:
 os.system('rm '+os.path.splitext(filepattern)[0]+'*_corr.png')
 os.system('rm '+os.path.splitext(filepattern)[0]+'*_bgcorr.xy')
 
+abscorr=input('Korrektur fuer Absorption [True]? ')
+if abscorr=='':
+	abscorr=True
+	d=eval(input('Probendicke / m: '))
+else:
+	abscorr=eval(abscorr)
+
 tt,yh0=np.genfromtxt('Alu_Halter_flach_Miniflex.xy',unpack=True)
 f=interpolate.interp1d(tt,yh0)
 
@@ -43,8 +50,8 @@ def corr(i):
 	relints=[np.trapz(yobs[a]-min(yobs[a]),x=tt_deg[a])/np.trapz(yh[a]-min(yh[a]),x=tt_deg[a]) for a in argscut]
 
 	params=lm.Parameters()
-	params.add('mu',1)
-	params.add('t',2e-3,vary=False)
+	params.add('mu',0,vary=abscorr)
+	params.add('t',d,vary=False)
 	def fitfunc(params):
 		prm=params.valuesdict()
 		cor=relints/A(prm['mu'],prm['t'],tt_deg[peaks])
@@ -58,15 +65,17 @@ def corr(i):
 
 	plt.close('all')
 	plt.plot(tt_deg,yobs)
+	plt.plot(tt_deg,yobs/(1-A(prm['mu'],prm['t'],tt_deg)))
 	plt.plot(tt_deg,Cyh*yh)
 	plt.plot(tt_deg[peaks],Cyh*yh[peaks],'+')
 
+	yobs/=(1-A(prm['mu'],prm['t'],tt_deg))
 	yobs-=Cyh*yh
 
 	tt_deg,yobs=np.delete(tt_deg,argscut),np.delete(yobs,argscut)
 
 	plt.plot(tt_deg,yobs)
-	plt.text(min(tt_deg),min(Cyh*yh),'scale=%.3f'%Cyh+'\n mu=%.2f'%prm['mu']+'/m')
+	plt.figtext(0.15,0.15,'scale=%.3f'%Cyh+'\n mu=%.2f'%prm['mu']+'/m')
 
 	plt.yscale('log')
 
