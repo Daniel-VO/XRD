@@ -58,6 +58,11 @@ def corr(i):
 	results=lm.minimize(fitfunc,params)
 	prm=results.params.valuesdict()
 
+	# ~ plt.close('all')
+	# ~ plt.plot(tt_deg[peaks],relints)
+	# ~ plt.plot(tt_deg,A(prm['mu'],prm['t'],tt_deg))
+	# ~ plt.show()
+
 	Cyh=np.average(relints/A(prm['mu'],prm['t'],tt_deg[peaks]))
 	argscut=np.concatenate(argscut)
 	# ~ Cyh=(max(yobs[argscut])-min(yobs[argscut]))/(max(yh[argscut])-min(yh[argscut]))/2
