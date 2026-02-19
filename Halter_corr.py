@@ -54,8 +54,7 @@ def corr(i):
 	params.add('t',d,vary=False)
 	def fitfunc(params):
 		prm=params.valuesdict()
-		cor=relints/A(prm['mu'],prm['t'],tt_deg[peaks])
-		return cor/np.median(cor)-1
+		return np.quantile(relints-A(prm['mu'],prm['t'],tt_deg[peaks]),0)
 	results=lm.minimize(fitfunc,params)
 	prm=results.params.valuesdict()
 
