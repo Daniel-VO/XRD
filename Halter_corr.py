@@ -1,5 +1,5 @@
 """
-Created 20. Februar 2026 by Daniel Van Opdenbosch, Technical University of Munich
+Created 26. Februar 2026 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -13,8 +13,21 @@ import lmfit as lm
 import matplotlib.pyplot as plt
 from scipy import interpolate
 from scipy import signal
+from scipy.special import iv as B
+from scipy.special import struve as S
 
-def A(mu,t,tt_deg):
+def AL(z):
+	return 2*(B(0,z)-S(0,z)-(B(1,z)-S(1,z))/z)
+
+def AB(z):
+	return (B(1,2*z)-S(1,2*z))/z
+
+def Acap(mu,r,tt_deg):
+	z=2*mu*r
+	theta=np.radians(tt_deg/2)
+	return AL(z)*np.cos(theta)**2+AB(z)*np.sin(theta)**2
+
+def Aflat(mu,t,tt_deg):
 	return np.exp(-mu*t*(2/np.sin(np.radians(tt_deg/2))))
 
 if len(sys.argv)>1:
@@ -27,11 +40,13 @@ os.system('rm '+os.path.splitext(filepattern)[0]+'*_bgcorr.xy')
 abscorr=input('Korrektur fuer Absorption [True]? ')
 if abscorr=='':
 	abscorr=True
+	geom=input('Geometrie (Teller / Kapillare) [Teller]: ')
 	d=eval(input('Probendicke / m: '))
+	Mleer=input('Haltermessung, .xy: ')
 else:
 	abscorr=eval(abscorr)
 
-tt,yh0=np.genfromtxt('Alu_Halter_flach_Miniflex.xy',unpack=True)
+tt,yh0=np.genfromtxt(Mleer,unpack=True)
 f=interpolate.interp1d(tt,yh0)
 
 @ray.remote
@@ -57,17 +72,26 @@ def corr(i):
 		params.add('t',d,vary=False)
 		def fitfunc(params):
 			prm=params.valuesdict()
-			return np.quantile(relints-A(prm['mu'],prm['t'],tt_deg[peaks]),0)
+			return np.quantile(relints-Aflat(prm['mu'],prm['t'],tt_deg[peaks]),0)
 		results=lm.minimize(fitfunc,params)
 		prm=results.params.valuesdict()
 
 		# ~ plt.close('all')
 		# ~ plt.plot(tt_deg[peaks],relints)
-		# ~ plt.plot(tt_deg,A(prm['mu'],prm['t'],tt_deg))
+		# ~ plt.plot(tt_deg,Aflat(prm['mu'],prm['t'],tt_deg))
 		# ~ plt.show()
 
-		Cyh=A(prm['mu'],prm['t'],180)
-		yobs/=(1-A(prm['mu'],prm['t'],tt_deg))
+		Cyh=Aflat(prm['mu'],prm['t'],180)
+		yobs/=(1-Aflat(prm['mu'],prm['t'],tt_deg))
+	elif 'Kap' in geom or 'cap' in geom:
+		zle,yzle,_=np.genfromtxt(Mleer.replace('.xy','.ras'),unpack=True,skip_header=971,skip_footer=3)
+		zme,yzme,_=np.genfromtxt(fn+'.ras',unpack=True,skip_header=971,skip_footer=3)
+
+		T=yzme[zme==0]/yzle[zle==0]
+		r=d/2;mu=-np.log(T)/d
+
+		Cyh=Acap(mu,r,0)
+		yobs/=(1-Acap(mu,r,tt_deg))
 	else:
 		Cyh=np.median(yobs[:10]/yh[:10])
 
@@ -79,7 +103,7 @@ def corr(i):
 
 	plt.close('all')
 	plt.plot(tt_deg,yobs+Cyh*yh)
-	# ~ plt.plot(tt_deg,yobs/(1-A(prm['mu'],prm['t'],tt_deg)))
+	# ~ plt.plot(tt_deg,yobs/(1-Aflat(prm['mu'],prm['t'],tt_deg)))
 	plt.plot(tt_deg,Cyh*yh)
 	plt.plot(tt_deg[peaks],Cyh*yh[peaks],'+')
 	plt.plot(tt_deg,yobs)
