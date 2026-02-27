@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from scipy import interpolate
 from scipy import signal
 from scipy.special import iv as B
-from scipy.special import struve as S
+from scipy.special import modstruve as S
 
 def AL(z):
 	return 2*(B(0,z)-S(0,z)-(B(1,z)-S(1,z))/z)
@@ -25,7 +25,7 @@ def AB(z):
 def Acap(mu,r,tt_deg):
 	z=2*mu*r
 	theta=np.radians(tt_deg/2)
-	return AL(z)*np.cos(theta)**2+AB(z)*np.sin(theta)**2
+	return 1-(AL(z)*np.cos(theta)**2+AB(z)*np.sin(theta)**2)
 
 def Aflat(mu,t,tt_deg):
 	return np.exp(-mu*t*(2/np.sin(np.radians(tt_deg/2))))
