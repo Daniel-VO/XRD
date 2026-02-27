@@ -72,14 +72,14 @@ def corr(i):
 		params.add('t',d,vary=False)
 		def fitfunc(params):
 			prm=params.valuesdict()
-			return np.quantile(relints+Aflat(prm['mu'],prm['t'],tt_deg[peaks])-1,0)
+			return np.quantile(relints-(1-Aflat(prm['mu'],prm['t'],tt_deg[peaks])),0)
 		results=lm.minimize(fitfunc,params)
 		prm=results.params.valuesdict()
 
-		# ~ plt.close('all')
-		# ~ plt.plot(tt_deg[peaks],relints)
-		# ~ plt.plot(tt_deg,-Aflat(prm['mu'],prm['t'],tt_deg)+1)
-		# ~ plt.show()
+		plt.close('all')
+		plt.plot(tt_deg[peaks],relints)
+		plt.plot(tt_deg,1-Aflat(prm['mu'],prm['t'],tt_deg))
+		plt.show()
 
 		Cyh=1-Aflat(prm['mu'],prm['t'],180)
 		yobs/=Aflat(prm['mu'],prm['t'],tt_deg)
