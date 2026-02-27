@@ -1,5 +1,5 @@
 """
-Created 26. Februar 2026 by Daniel Van Opdenbosch, Technical University of Munich
+Created 27. Februar 2026 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -25,10 +25,10 @@ def AB(z):
 def Acap(mu,r,tt_deg):
 	z=2*mu*r
 	theta=np.radians(tt_deg/2)
-	return 1-(AL(z)*np.cos(theta)**2+AB(z)*np.sin(theta)**2)
+	return AL(z)*np.cos(theta)**2+AB(z)*np.sin(theta)**2
 
 def Aflat(mu,t,tt_deg):
-	return np.exp(-mu*t*(2/np.sin(np.radians(tt_deg/2))))
+	return 1-np.exp(-mu*t*(2/np.sin(np.radians(tt_deg/2))))
 
 if len(sys.argv)>1:
 	filepattern=sys.argv[1]
@@ -72,17 +72,17 @@ def corr(i):
 		params.add('t',d,vary=False)
 		def fitfunc(params):
 			prm=params.valuesdict()
-			return np.quantile(relints-Aflat(prm['mu'],prm['t'],tt_deg[peaks]),0)
+			return np.quantile(relints+Aflat(prm['mu'],prm['t'],tt_deg[peaks])-1,0)
 		results=lm.minimize(fitfunc,params)
 		prm=results.params.valuesdict()
 
 		# ~ plt.close('all')
 		# ~ plt.plot(tt_deg[peaks],relints)
-		# ~ plt.plot(tt_deg,Aflat(prm['mu'],prm['t'],tt_deg))
+		# ~ plt.plot(tt_deg,-Aflat(prm['mu'],prm['t'],tt_deg)+1)
 		# ~ plt.show()
 
-		Cyh=Aflat(prm['mu'],prm['t'],180)
-		yobs/=(1-Aflat(prm['mu'],prm['t'],tt_deg))
+		Cyh=1-Aflat(prm['mu'],prm['t'],180)
+		yobs/=Aflat(prm['mu'],prm['t'],tt_deg)
 	elif 'Kap' in geom or 'cap' in geom:
 		zle,yzle,_=np.genfromtxt(Mleer.replace('.xy','.ras'),unpack=True,skip_header=971,skip_footer=3)
 		zme,yzme,_=np.genfromtxt(fn+'.ras',unpack=True,skip_header=971,skip_footer=3)
@@ -90,23 +90,22 @@ def corr(i):
 		T=yzme[zme==0]/yzle[zle==0]
 		r=d/2;mu=-np.log(T)/d
 
-		Cyh=Acap(mu,r,0)
-		yobs/=(1-Acap(mu,r,tt_deg))
+		Cyh=1-Acap(mu,r,0)
+		yobs/=Acap(mu,r,tt_deg)
 	else:
 		Cyh=np.median(yobs[:10]/yh[:10])
 
 	yobs-=Cyh*yh
 
-	tt_deg,yobs=np.delete(tt_deg,argscut),np.delete(yobs,argscut)
+	tt_deg_c,yobs_c=np.delete(tt_deg,argscut),np.delete(yobs,argscut)
 
 	# ~ Cyh=(max(yobs[argscut])-min(yobs[argscut]))/(max(yh[argscut])-min(yh[argscut]))/2
 
 	plt.close('all')
 	plt.plot(tt_deg,yobs+Cyh*yh)
-	# ~ plt.plot(tt_deg,yobs/(1-Aflat(prm['mu'],prm['t'],tt_deg)))
 	plt.plot(tt_deg,Cyh*yh)
 	plt.plot(tt_deg[peaks],Cyh*yh[peaks],'+')
-	plt.plot(tt_deg,yobs)
+	plt.plot(tt_deg_c,yobs_c)
 	if len(peaks)>1:
 		plt.figtext(0.15,0.15,'scale=%.3f'%Cyh+'\n mu=%.2f'%prm['mu']+'/m')
 	else:
@@ -120,6 +119,6 @@ def corr(i):
 	plt.savefig(fn+'_corr.png')
 	plt.savefig(fn+'_corr.pdf')
 
-	np.savetxt(fn+'_bgcorr.xy',np.transpose([tt_deg,abs(yobs)]),fmt='%.6f')
+	np.savetxt(fn+'_bgcorr.xy',np.transpose([tt_deg_c,abs(yobs_c)]),fmt='%.6f')
 
 ray.get([corr.remote(i) for i in list(filter(lambda a:'Halter' not in a,glob.glob(os.path.splitext(filepattern)[0]+'*.xy')))])
