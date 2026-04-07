@@ -1,5 +1,5 @@
 """
-Created 27. Februar 2026 by Daniel Van Opdenbosch, Technical University of Munich
+Created 07. April 2026 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -30,13 +30,6 @@ def Acap(mu,r,tt_deg):
 def Aflat(mu,t,tt_deg):
 	return 1-np.exp(-mu*t*(2/np.sin(np.radians(tt_deg/2))))
 
-if len(sys.argv)>1:
-	filepattern=sys.argv[1]
-else:
-	filepattern=''
-os.system('rm '+os.path.splitext(filepattern)[0]+'*_corr.png')
-os.system('rm '+os.path.splitext(filepattern)[0]+'*_bgcorr.xy')
-
 abscorr=input('Korrektur fuer Absorption [True]? ')
 if abscorr=='':
 	abscorr=True
@@ -50,10 +43,10 @@ tt,yh0=np.genfromtxt(Mleer,unpack=True)
 f=interpolate.interp1d(tt,yh0)
 
 @ray.remote
-def corr(i):
-	fn=os.path.splitext(i)[0]
+def corr(f):
+	fn=os.path.splitext(f)[0]
 
-	tt_deg,yobs=np.genfromtxt(i,unpack=True)
+	tt_deg,yobs=np.genfromtxt(f,unpack=True)
 	step=np.gradient(tt_deg)[0]
 
 	args=(tt_deg>=min(tt))&(tt_deg<=max(tt))
@@ -93,9 +86,9 @@ def corr(i):
 		Cyh=1-Acap(mu,r,0)
 		yobs/=Acap(mu,r,tt_deg)
 	else:
-		Cyh=np.median(yobs[:10]/yh[:10])
+		Cyh=np.median(yobs[:10]/yh[:10])										#abs
 
-	yobs-=Cyh*yh
+	yobs-=Cyh*yh																#bgs
 
 	tt_deg_c,yobs_c=np.delete(tt_deg,argscut),np.delete(yobs,argscut)
 
@@ -119,6 +112,6 @@ def corr(i):
 	plt.savefig(fn+'_corr.png')
 	plt.savefig(fn+'_corr.pdf')
 
-	np.savetxt(fn+'_bgcorr.xy',np.transpose([tt_deg_c,abs(yobs_c)]),fmt='%.6f')
+	np.savetxt(fn+'_abs_bgs.xy',np.transpose([tt_deg_c,abs(yobs_c)]),fmt='%.6f')
 
-ray.get([corr.remote(i) for i in list(filter(lambda a:'Halter' not in a,glob.glob(os.path.splitext(filepattern)[0]+'*.xy')))])
+ray.get([corr.remote(f) for f in glob.glob('*.xy')])
