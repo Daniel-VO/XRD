@@ -1,7 +1,7 @@
 NTHREADS=4
 VERZERR=Rigaku-Smartlab-Hypix-BB.ger
 R=300
-FocusH=10
+FocusH=8
 FocusW=0.04
 TSlitR=186.00
 TSlitH=10
