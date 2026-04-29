@@ -31,16 +31,14 @@ for f in glob.glob('*.str'):
 						print('Grenze Gitterparameter nicht gesetzt - bitte pruefen!')
 
 if len(sys.argv)==4:
-	switch,varslitcor=sys.argv[1],sys.argv[2],eval(sys.argv[3])
+	misch,geom=sys.argv[1],sys.argv[2],eval(sys.argv[3])
 else:
-	switch=input('hetero oder homo [homo]? ')
-	if switch=='':
-		switch='homo'
-	varslitcor=input('Korrektur fuer variable Blende [False]? ')
-	if varslitcor=='':
-		varslitcor=False
+	misch=input('Art der Mischung [homogen, heterogen]? ')
+	if 'het' not in misch:
+		misch='homo'
 	else:
-		varslitcor=eval(varslitcor)
+		misch='hetero'
+	geom=input('Besondere Geometrie [nein, varslit, ardet]? ')
 
 fnlist=[]
 phaselist=[]
@@ -222,14 +220,11 @@ for f in glob.glob('*.lst'):
 				if 'single' in dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n',''):
 					ycoh+=np.genfromtxt(fn+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
 			if np.median(ycoh)!=0:
-				if switch=='homo':
-					xc,k,J=BGMN_Vonk.Vonk(fn+'_'+phasename,atoms,yobs*1,ycoh,tt_deg,emission,varslitcor)
-				elif switch=='hetero':
-					xc,k,J=BGMN_Vonk.Vonk(fn+'_'+phasename,atoms,yinc+ycoh,ycoh,tt_deg,emission,varslitcor)
-					print('Warnung: xc ist kristalliner Anteil an homogener Portion.')
+				if misch=='homo':
+					xc,k,J=BGMN_Vonk.Vonk(fn+'_'+phasename,atoms,yobs*1,ycoh,tt_deg,emission,geom)
 				else:
-					print('Eingabe hetero / homo nicht verstanden, xc wird auf 0 gesetzt.')
-					xc,k,J=uq(0,pq.dimensionless,0),uq(0,pq.angstrom**2,0),uq(0,pq.dimensionless,0)
+					xc,k,J=BGMN_Vonk.Vonk(fn+'_'+phasename,atoms,yinc+ycoh,ycoh,tt_deg,emission,geom)
+					print('Warnung: xc ist kristalliner Anteil an homogener Portion.')
 			else:
 				xc,k,J=uq(0,pq.dimensionless,0),uq(0,pq.angstrom**2,0),uq(0,pq.dimensionless,0)
 
@@ -286,5 +281,5 @@ for f,valuei in enumerate(fnlist):
 	for j,valuej in enumerate(export):
 		if j>1 and valuej!=[]:
 			printline+='; '+namestr(export[j],locals())+': '+'%.8e'%float(valuej[f].magnitude)+' +/- '+'%.8e'%valuej[f].uncertainty
-	printline+='; comp: '+switch+' varslitcor: '+str(varslitcor)
+	printline+='; comp: '+misch+' geom: '+str(geom)
 	print(printline,file=open('results.txt','a'))

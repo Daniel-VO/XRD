@@ -25,15 +25,16 @@ def T(vects,atoms,energy,yobs,J):												#Vonk T-Funktion
 def Vonkfunc(vects,xc,k):														#Vonk Anpassung an R
 	return 1/xc+(k/(2*xc))/vects**2
 
-def Vonk(fn,atoms,yobs,ycoh,tt_deg,emission,varslitcor):			#Hauptfunktion Vonk.Vonk()
+def Vonk(fn,atoms,yobs,ycoh,tt_deg,emission,geom):			#Hauptfunktion Vonk.Vonk()
 	theta=np.radians(tt_deg/2)
 	vects=2*np.sin(theta)/xu.utilities_noconf.wavelength(emission)
 	energy=xu.utilities_noconf.energy(emission)
-	LP=(1+np.cos(2*theta)**2)/(np.sin(theta)**2*np.cos(theta))
-	yobs/=LP;ycoh/=LP
-	if varslitcor:
-		varslitcor=np.sin(theta)
-		yobs/=varslitcor;ycoh/=varslitcor
+	if geom!='ardet':
+		LP=(1+np.cos(2*theta)**2)/(np.sin(theta)**2*np.cos(theta))
+		yobs/=LP;ycoh/=LP
+	if geom=='varslit':
+		geom=np.sin(theta)
+		yobs/=geom;ycoh/=geom
 
 	for i,value in enumerate(atoms):
 		if isinstance(value,str):
