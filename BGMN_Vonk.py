@@ -1,5 +1,5 @@
 """
-Created 29. April 2026 by Daniel Van Opdenbosch, Technical University of Munich
+Created 10. Juni 2026 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -22,10 +22,7 @@ def R(vects,yobs,ycoh):															#Vonk R-Funktion
 def T(vects,atoms,energy,yobs,J):												#Vonk T-Funktion
 	return scipy.integrate.cumulative_trapezoid(fsquared(vects,atoms,energy)*vects**2,x=vects)/scipy.integrate.cumulative_trapezoid(yobs-J*vects**2,x=vects)
 
-def Vonkfunc(vects,xc,k):														#Vonk Anpassung an R
-	return 1/xc+(k/(2*xc))/vects**2
-
-def Vonk(fn,atoms,yobs,ycoh,tt_deg,emission,geom):			#Hauptfunktion Vonk.Vonk()
+def Vonk(fn,atoms,yobs,ycoh,tt_deg,emission,geom):								#Hauptfunktion Vonk.Vonk()
 	theta=np.radians(tt_deg/2)
 	vects=2*np.sin(theta)/xu.utilities_noconf.wavelength(emission)
 	energy=xu.utilities_noconf.energy(emission)
@@ -47,7 +44,8 @@ def Vonk(fn,atoms,yobs,ycoh,tt_deg,emission,geom):			#Hauptfunktion Vonk.Vonk()
 	params.add('J',1,min=0)
 	def VonkTfitfunc(params):
 		prmT=params.valuesdict()
-		return T(vects,atoms,energy,yobs,prmT['J'])[argsJ]-np.median(T(vects,atoms,energy,yobs,prmT['J'])[argsJ][-10:])
+		Tvals=T(vects,atoms,energy,yobs,prmT['J'])[argsJ]
+		return Tvals-np.median(Tvals[-10:])
 	resultT=lm.minimize(VonkTfitfunc,params)
 	prmT=resultT.params.valuesdict()
 	for key in resultT.params:
