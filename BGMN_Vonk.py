@@ -13,91 +13,90 @@ import xrayutilities as xu
 import quantities as pq
 from quantities import UncertainQuantity as uq
 
-def fsquared(vects,atoms,energy):												#Atomare Streufaktoren
-	return np.real(np.average(np.array([i.f(2*np.pi*vects,en=energy) for i in atoms])**2,axis=0))
+def fsquared(vects,atoms,energy):                                                #Atomare Streufaktoren
+    return np.real(np.average(np.array([i.f(2*np.pi*vects,en=energy) for i in atoms])**2,axis=0))
 
-def R(vects,yobs,ycoh):															#Vonk R-Funktion
-	return scipy.integrate.cumulative_trapezoid(yobs,x=vects)/scipy.integrate.cumulative_trapezoid(ycoh,x=vects)
+def R(vects,yobs,ycoh):                                                            #Vonk R-Funktion
+    return scipy.integrate.cumulative_trapezoid(yobs,x=vects)/scipy.integrate.cumulative_trapezoid(ycoh,x=vects)
 
-def T(vects,atoms,energy,yobs,J):												#Vonk T-Funktion
-	return scipy.integrate.cumulative_trapezoid(fsquared(vects,atoms,energy)*vects**2,x=vects)/scipy.integrate.cumulative_trapezoid(yobs-J*vects**2,x=vects)
+def T(vects,atoms,energy,yobs,J):                                                #Vonk T-Funktion
+    return scipy.integrate.cumulative_trapezoid(fsquared(vects,atoms,energy)*vects**2,x=vects)/scipy.integrate.cumulative_trapezoid(yobs-J*vects**2,x=vects)
 
-def Vonk(fn,atoms,yobs,ycoh,tt_deg,emission,geom):								#Hauptfunktion Vonk.Vonk()
-	theta=np.radians(tt_deg/2)
-	vects=2*np.sin(theta)/xu.utilities_noconf.wavelength(emission)
-	energy=xu.utilities_noconf.energy(emission)
-	if geom!='ardet':
-		LP=(1+np.cos(2*theta)**2)/(np.sin(theta)**2*np.cos(theta))
-		yobs/=LP;ycoh/=LP
-	if geom=='varslit':
-		geom=np.sin(theta)
-		yobs/=geom;ycoh/=geom
+def Vonk(fn,atoms,yobs,ycoh,tt_deg,emission,geom):                                #Hauptfunktion Vonk.Vonk()
+    theta=np.radians(tt_deg/2)
+    vects=2*np.sin(theta)/xu.utilities_noconf.wavelength(emission)
+    energy=xu.utilities_noconf.energy(emission)
+    if geom!='ardet':
+        LP=(1+np.cos(2*theta)**2)/(np.sin(theta)**2*np.cos(theta))
+        yobs/=LP;ycoh/=LP
+    if geom=='varslit':
+        geom=np.sin(theta)
+        yobs/=geom;ycoh/=geom
 
-	for i,value in enumerate(atoms):
-		if isinstance(value,str):
-			atoms[i]=xu.materials.atom.Atom(value[0]+value[1:].lower(),1)
+    for i,value in enumerate(atoms):
+        if isinstance(value,str):
+            atoms[i]=xu.materials.atom.Atom(value[0]+value[1:].lower(),1)
 
-	#Berechnung der inelastischen Streuung J, Korrektur von yobs
-	argsJ=vects[1:]>0.6
-	err={}
-	params=lm.Parameters()
-	params.add('J',1,min=0)
-	def VonkTfitfunc(params):
-		prmT=params.valuesdict()
-		Tvals=T(vects,atoms,energy,yobs,prmT['J'])[argsJ]
-		return Tvals-np.median(Tvals[-10:])
-	resultT=lm.minimize(VonkTfitfunc,params)
-	prmT=resultT.params.valuesdict()
-	for key in resultT.params:
-		err[key]=resultT.params[key].stderr
-	yobs-=prmT['J']*vects**2
-	J=uq(prmT['J'],pq.dimensionless,err['J'])
+    #Berechnung der inelastischen Streuung J, Korrektur von yobs
+    argsJ=vects[1:]>0.6
+    err={}
+    params=lm.Parameters()
+    params.add('J',1,min=0)
+    def VonkTresidual(params):
+        prmT=params.valuesdict()
+        Tvals=T(vects,atoms,energy,yobs,prmT['J'])[argsJ]
+        return Tvals-np.median(Tvals[-10:])
+    resultT=lm.minimize(VonkTresidual,params)
+    prmT=resultT.params.valuesdict()
+    for key in resultT.params:
+        err[key]=resultT.params[key].stderr
+    yobs-=prmT['J']*vects**2
+    J=uq(prmT['J'],pq.dimensionless,err['J'])
 
-	#Normierung auf elektronische Einheiten eA^-2
-	normEU=np.median((fsquared(vects,atoms,energy)*vects**2)[-10:])/np.median(yobs[-10:])
-	yobs*=normEU;ycoh*=normEU
+    #Normierung auf elektronische Einheiten eA^-2
+    normEU=np.median((fsquared(vects,atoms,energy)*vects**2)[-10:])/np.median(yobs[-10:])
+    yobs*=normEU;ycoh*=normEU
 
-	#Berechnung von Rulands R, Anpassung durch Vonks Funktion
-	interpol=scipy.interpolate.interp1d(vects[1:]**2,R(vects,yobs,ycoh))
-	vectsRsq=np.linspace(0.1,vects[-1]**2)
-	RulandR=interpol(vectsRsq)
-	sl2,int2=scipy.stats.siegelslopes(np.gradient(RulandR,vectsRsq),x=2*vectsRsq)
-	sl1,int1=scipy.stats.siegelslopes(RulandR-sl2*vectsRsq**2,x=vectsRsq)
-	xc=1/uq(int1,pq.dimensionless,scipy.stats.median_abs_deviation(RulandR-sl2*vectsRsq**2-sl1*vectsRsq))
-	k=2*xc*uq(sl1,pq.angstrom**2,0)
+    #Berechnung von Rulands R, Anpassung durch Vonks Funktion
+    interpol=scipy.interpolate.interp1d(vects[1:]**2,R(vects,yobs,ycoh))
+    vectsRsq=np.linspace(0.1,vects[-1]**2)
+    RulandR=interpol(vectsRsq)
+    sl2,int2=scipy.stats.siegelslopes(np.gradient(RulandR,vectsRsq),x=2*vectsRsq)
+    sl1,int1=scipy.stats.siegelslopes(RulandR-sl2*vectsRsq**2,x=vectsRsq)
+    xc=1/uq(int1,pq.dimensionless,scipy.stats.median_abs_deviation(RulandR-sl2*vectsRsq**2-sl1*vectsRsq))
+    k=2*xc*uq(sl1,pq.angstrom**2,0)
 
-	#Abbildungen
-	plt.close('all')
-	mpl.rc('text',usetex=True)
-	mpl.rc('text.latex',preamble=r'\usepackage[helvet]{sfmath}')
-	fig,ax1=plt.subplots(figsize=(7.5/2.54,5.3/2.54))
-	ax2=ax1.twinx()
+    #Abbildungen
+    plt.close('all')
+    mpl.rc('text',usetex=True)
+    mpl.rc('text.latex',preamble=r'\usepackage[helvet]{sfmath}')
+    fig,ax1=plt.subplots(constrained_layout=True,figsize=(7.5/2.54,5.3/2.54))
+    ax2=ax1.twinx()
 
-	ax1.plot(vectsRsq,RulandR,'+',color='k',ms=3)
-	ax1.plot(np.linspace(0,max(vects**2)),np.poly1d([sl2,sl1,int1])(np.linspace(0,max(vects**2))),'k--',linewidth=0.5)
+    ax1.plot(vectsRsq,RulandR,'+',color='k',ms=3)
+    ax1.plot(np.linspace(0,max(vects**2)),np.poly1d([sl2,sl1,int1])(np.linspace(0,max(vects**2))),'k--',linewidth=0.5)
 
-	ax2.plot(vects**2,yobs,'k',linewidth=0.5)
-	ax2.plot(vects**2,ycoh,'k--',linewidth=0.5)
-	ax2.plot(vects**2,fsquared(vects,atoms,energy)*vects**2,'w',linewidth=0.5)
-	ax2.plot(vects**2,fsquared(vects,atoms,energy)*vects**2,'k:',linewidth=0.5)
+    ax2.plot(vects**2,yobs,'k',linewidth=0.5)
+    ax2.plot(vects**2,ycoh,'k--',linewidth=0.5)
+    ax2.plot(vects**2,fsquared(vects,atoms,energy)*vects**2,'w',linewidth=0.5)
+    ax2.plot(vects**2,fsquared(vects,atoms,energy)*vects**2,'k:',linewidth=0.5)
 
-	ax1.set_xlim([0,None])
-	ax1.set_ylim([0,None])
-	plotlim=2*np.median((fsquared(vects,atoms,energy)*vects**2)[-10:])
-	if ax2.get_ylim()[-1]>plotlim:
-		ax2.set_ylim([0,None])
-	else:
-		ax2.set_ylim([0,plotlim])
+    ax1.set_xlim([0,None])
+    ax1.set_ylim([0,None])
+    plotlim=2*np.median((fsquared(vects,atoms,energy)*vects**2)[-10:])
+    if ax2.get_ylim()[-1]>plotlim:
+        ax2.set_ylim([0,None])
+    else:
+        ax2.set_ylim([0,plotlim])
 
-	ax1.set_xlabel(r'$s_p^2/\rm{\AA}^{-2}$',fontsize=10)
-	ax1.set_ylabel(r'$R/1$',fontsize=10)
-	ax2.set_ylabel(r'$Is^2/(\rm{e\,\AA}^{-2})$',fontsize=10)
-	ax1.tick_params(axis='both',pad=2,labelsize=8)
-	ax2.tick_params(axis='y',pad=2,labelsize=8)
-	ax1.xaxis.get_offset_text().set_size(8)
-	ax1.yaxis.get_offset_text().set_size(8)
-	ax2.yaxis.get_offset_text().set_size(8)
-	plt.tight_layout(pad=0.1)
-	plt.savefig(fn+'_Vonk.png',dpi=300)
+    ax1.set_xlabel(r'$s_p^2/\rm{\AA}^{-2}$',fontsize=10)
+    ax1.set_ylabel(r'$R/1$',fontsize=10)
+    ax2.set_ylabel(r'$Is^2/(\rm{e\,\AA}^{-2})$',fontsize=10)
+    ax1.tick_params(axis='both',pad=2,labelsize=8)
+    ax2.tick_params(axis='y',pad=2,labelsize=8)
+    ax1.xaxis.get_offset_text().set_size(8)
+    ax1.yaxis.get_offset_text().set_size(8)
+    ax2.yaxis.get_offset_text().set_size(8)
+    plt.savefig(fn+'_Vonk.png',dpi=300)
 
-	return xc,k,J
+    return xc,k,J

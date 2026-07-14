@@ -1,5 +1,5 @@
 """
-Created 29. April 2026 by Daniel Van Opdenbosch, Technical University of Munich
+Created 14. Juli 2026 by Daniel Van Opdenbosch, Technical University of Munich
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed without any warranty or implied warranty of merchantability or fitness for a particular purpose. See the GNU general public license for more details: <http://www.gnu.org/licenses/>
 """
@@ -34,10 +34,6 @@ if len(sys.argv)==4:
 	misch,geom=sys.argv[1],sys.argv[2],eval(sys.argv[3])
 else:
 	misch=input('Art der Mischung [homogen, heterogen]? ')
-	if 'het' not in misch:
-		misch='homo'
-	else:
-		misch='hetero'
 	geom=input('Besondere Geometrie [nein, varslit, ardet]? ')
 
 fnlist=[]
@@ -69,7 +65,7 @@ J_c=[]
 for f in glob.glob('*.lst'):
 	fn=os.path.splitext(f)[0]
 	emission='CuKa1'
-	if ('LAMBDA=cu' or 'LAMBDA=CU') in open(fn+'.sav').read():
+	if 'LAMBDA=CU' in open(fn+'.sav').read().upper():
 		emission='CuKa1'
 		print('Emission erkannt: '+emission)
 	else:
@@ -220,7 +216,7 @@ for f in glob.glob('*.lst'):
 				if 'single' in dia[0].split('STRUC['+str(1+d)+']=')[1].split(' STRUC[')[0].replace('\n',''):
 					ycoh+=np.genfromtxt(fn+'.dia',delimiter=None,unpack=True,skip_header=1,skip_footer=0,usecols=4+d)
 			if np.median(ycoh)!=0:
-				if misch=='homo':
+				if 'het' not in misch:
 					xc,k,J=BGMN_Vonk.Vonk(fn+'_'+phasename,atoms,yobs*1,ycoh,tt_deg,emission,geom)
 				else:
 					xc,k,J=BGMN_Vonk.Vonk(fn+'_'+phasename,atoms,yinc+ycoh,ycoh,tt_deg,emission,geom)
