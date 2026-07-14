@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ProfexSynchrotronConfiguration model="Chernyshov" version="5.5">
+    <Range unit="degrees" start="1" end="60" step="5" shape="0.5"/>
+    <BeamlineParameters>
+        <Sample geometry="CAPILLARY"/>
+        <DetectorDistance unit="mm" fit="true">300</DetectorDistance>
+        <PixelSize unit="mm" fit="true">0.1</PixelSize>
+        <SampleSize unit="mm" fit="true">1.5</SampleSize>
+        <SensitiveLayer unit="mm" fit="true">1</SensitiveLayer>
+        <BeamDivergence unit="degrees" fit="true" focused="false">0.03</BeamDivergence>
+        <DetectorTilt unit="degrees">0</DetectorTilt>
+        <PositionalCorrections mode="0" cutoff="true">
+            <Wavelength unit="nm">0.15406</Wavelength>
+            <Detector>
+                <DetectorMaterial>Cd Te</DetectorMaterial>
+                <DetectorDensity unit="g/cm3">5.86</DetectorDensity>
+                <DetectorAbsorptionCoefficient unit="cm-1">1422.3</DetectorAbsorptionCoefficient>
+            </Detector>
+        </PositionalCorrections>
+    </BeamlineParameters>
+    <SupportPeaks/>
+    <Profiles/>
+</ProfexSynchrotronConfiguration>
