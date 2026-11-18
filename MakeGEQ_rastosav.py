@@ -49,42 +49,37 @@ MAP = {
         ),
 
     "irr": lambda h:
-        ""
-        if h.get("*MEAS_COND_OPT_ATTR") == "CB"
+        None if h.get("*MEAS_COND_OPT_ATTR") == "CB"
         else (h.get("*MEAS_COND_IRRADIATION_WIDTH") or "20"),
 
     "div": lambda h:
-        (
-            str(float(Fraction(axis_position(
-                h,
-                "IncidentSlitBox"
-            ).replace("deg", ""))))
-            if (
-                "MiniFlex" in h.get("*HW_GONIOMETER_NAME", "")
-                or "SmartLab" in h.get("*FILE_SYSTEM_NAME", "")
-            )
-            else ""
-            if h.get("*MEAS_COND_OPT_ATTR") == "CB"
-            else "atan(11/(R-HSlitR)/2)*360/pi"
-            if (h.get("*MEAS_COND_IRRADIATION_WIDTH") or "")
-            else "0.625"
-        ),
+        None if h.get("*MEAS_COND_OPT_ATTR") == "CB"
+        else str(float(Fraction(
+            axis_position(h, "IncidentSlitBox")
+            .replace("deg", "")
+        )))
+        if (
+            "MiniFlex" in h.get("*HW_GONIOMETER_NAME", "")
+            or "SmartLab" in h.get("*FILE_SYSTEM_NAME", "")
+        )
+        else "atan(11/(R-HSlitR)/2)*360/pi"
+        if (h.get("*MEAS_COND_IRRADIATION_WIDTH") or "")
+        else "0.625",
 
     "HSlitW0": lambda h:
-        "%(2*(R-HSlitR)*irr*sin(pi*zweiTheta/360))/(2*R+irr*cos(pi*zweiTheta/360))"
-        if h.get("*MEAS_COND_OPT_ATTR") == "CB"
-        else
-        "(2*(R-HSlitR)*irr*sin(pi*zweiTheta/360))/(2*R+irr*cos(pi*zweiTheta/360))",
+        None if h.get("*MEAS_COND_OPT_ATTR") == "CB"
+        else "(2*(R-HSlitR)*irr*sin(pi*zweiTheta/360))/(2*R+irr*cos(pi*zweiTheta/360))",
 
     "HSlitW1": lambda h:
-        "%2*tan(div*pi/360)*(R-HSlitR)"
-        if h.get("*MEAS_COND_OPT_ATTR") == "CB"
-        else
-        "2*tan(div*pi/360)*(R-HSlitR)",
+        None if h.get("*MEAS_COND_OPT_ATTR") == "CB"
+        else "2*tan(div*pi/360)*(R-HSlitR)",
 
     "HSlitW": lambda h:
         (
-            axis_position(h, "IncidentSlitBox").replace("mm", "")
+            float(
+                axis_position(h, "IncidentSlitBox")
+                .replace("mm", "")
+            )
             if h.get("*MEAS_COND_OPT_ATTR") == "CB"
             else "ifthenelse(lt(HSlitW0,HSlitW1),HSlitW0,HSlitW1)"
         ),
@@ -313,8 +308,9 @@ def make_sav_string(h):
 
         values[key] = value
 
-        if value != "":
+        if value not in ("", None):
             lines.append(f"{key}={value}")
+
 
     wmin = float(values["WMIN"])
     wmax = float(values["WMAX"])
