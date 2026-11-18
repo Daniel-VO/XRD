@@ -7,6 +7,7 @@ This program is free software: you can redistribute it and/or modify it under th
 from math import sin, pi
 from pathlib import Path
 import os
+from fractions import Fraction
 
 MAP = {
     "NTHREADS": lambda h: os.cpu_count(),
@@ -17,7 +18,6 @@ MAP = {
         "TRANSMISSION" if "Transmission" in h.get("*HW_SAMPLE_NAME", "")
         else "CAPILLARY" if (
             "Capillary" in h.get("*HW_SAMPLE_NAME", "")
-            or "PB-" in h.get("*MEAS_COND_OPT_ATTR", "")
         )
         else "REFLEXION",
 
@@ -55,9 +55,14 @@ MAP = {
 
     "div": lambda h:
         (
-            axis_position(h, "IncidentSlitBox")
-            .replace("deg", "")
-            if "MiniFlex" in h.get("*HW_GONIOMETER_NAME", "")
+            str(float(Fraction(axis_position(
+                h,
+                "IncidentSlitBox"
+            ).replace("deg", ""))))
+            if (
+                "MiniFlex" in h.get("*HW_GONIOMETER_NAME", "")
+                or "SmartLab" in h.get("*FILE_SYSTEM_NAME", "")
+            )
             else ""
             if h.get("*MEAS_COND_OPT_ATTR") == "CB"
             else "atan(11/(R-HSlitR)/2)*360/pi"
@@ -117,7 +122,6 @@ MAP = {
         )
         if "mm" in axis_position(h, "IncidentAxdSlit")
         else "",
-
 
     "PColl": lambda h:
         (
@@ -255,6 +259,21 @@ MAP = {
     # ------------------------------------------------------------------
 }
 
+def parse_ras_header(filename):
+    h = {}
+    with open(filename, encoding="utf-8", errors="ignore") as f:
+        for line in f:
+            line = line.strip()
+            if line == "*RAS_HEADER_END":
+                break
+            if not line.startswith("*"):
+                continue
+            parts = line.split(" ", 1)
+            if len(parts) != 2:
+                continue
+            key, value = parts
+            h[key] = value.strip().strip('"')
+    return h
 
 def axis_position(h, axis_name, return_all=False):
     values = []
@@ -278,22 +297,6 @@ def axis_position(h, axis_name, return_all=False):
         )
 
     return values[0]
-
-def parse_ras_header(filename):
-    h = {}
-    with open(filename, encoding="utf-8", errors="ignore") as f:
-        for line in f:
-            line = line.strip()
-            if line == "*RAS_HEADER_END":
-                break
-            if not line.startswith("*"):
-                continue
-            parts = line.split(" ", 1)
-            if len(parts) != 2:
-                continue
-            key, value = parts
-            h[key] = value.strip().strip('"')
-    return h
 
 def make_sav_string(h):
     lines = []
@@ -369,7 +372,7 @@ if generated:
                     encoding="utf-8",
                 )
                 print(
-                    f"created {ras.with_suffix('.sav').name}"
+                    f"created {ras.with_name(f"MakeGEQ_{ras.stem}").with_suffix(".sav").name}"
                 )
 
             raise SystemExit
